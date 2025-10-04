@@ -1,0 +1,23 @@
+/* variables.css - Biến CSS toàn cục */
+
+:root {
+  /* Màu sắc */
+  --color-primary: #007bff;
+  --color-secondary: #6c757d;
+  --color-success: #28a745;
+  --color-danger: #dc3545;
+
+  /* Dark mode */
+  --color-bg: #1e1e1e;
+  --color-text: #f5f5f5;
+
+  /* Typography */
+  --font-family: "Inter", sans-serif;
+  --font-size-base: 16px;
+  --font-size-title: 20px;
+
+  /* Layout */
+  --radius: 8px;
+  --padding: 12px;
+  --transition: 0.3s ease;
+}

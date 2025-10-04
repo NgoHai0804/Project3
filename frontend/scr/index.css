@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+}
+
+@layer utilities {
+  /* Animation nhấp nháy cảnh báo */
+  @keyframes blink-warning {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(1.05);
+    }
+  }
+  
+  .animate-blink-warning {
+    animation: blink-warning 0.5s ease-in-out infinite;
+  }
+  
+  /* Sidebar desktop hiển thị trên màn hình >= 640px */
+  @media (min-width: 640px) {
+    .sidebar-desktop {
+      display: flex !important;
+    }
+  }
+  
+  @media (max-width: 639px) {
+    .sidebar-desktop {
+      display: none !important;
+    }
+  }
+}

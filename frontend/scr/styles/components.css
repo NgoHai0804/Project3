@@ -1,0 +1,66 @@
+/* components.css - Class tiện ích tái sử dụng */
+
+/* Layout utilities */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* .hidden đã có sẵn trong Tailwind, dùng .hide-custom nếu cần tùy chỉnh */
+.hide-custom {
+  display: none !important;
+}
+
+.card {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: var(--padding);
+}
+
+/* Buttons */
+.btn {
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+}
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* Text helpers */
+.text-muted {
+  color: var(--color-secondary);
+}
+.text-center {
+  text-align: center;
+}
+
+/* Animation nhấp nháy cho ô thắng */
+@keyframes winningCellBlink {
+  0%, 100% {
+    border-color: #22c55e;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  50% {
+    border-color: #16a34a;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.3);
+  }
+}
+
+.winning-cell {
+  border: 2px solid #22c55e !important;
+  animation: winningCellBlink 0.6s ease-in-out 2;
+  animation-fill-mode: forwards;
+}
+
+.winning-cell-final {
+  border: 2px solid #22c55e !important;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
+}
