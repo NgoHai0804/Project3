@@ -15,13 +15,13 @@ async function saveMessage({ roomId, senderId, receiverId, type = 'text', messag
     });
 
     const populatedMessage = await Message.findById(newMessage._id)
-      .populate('senderId', 'username nickname avatarUrl')
-      .populate('receiverId', 'username nickname avatarUrl');
+      .populate('senderId', 'nickname avatarUrl')
+      .populate('receiverId', 'nickname avatarUrl');
 
-    logger.info(`Message saved: ${newMessage._id}`);
+    logger.info(`Đã lưu tin nhắn: ${newMessage._id}`);
     return populatedMessage;
   } catch (err) {
-    logger.error("saveMessage error: %o", err);
+    logger.error("Lỗi khi lưu tin nhắn: %o", err);
     throw err;
   }
 }
@@ -30,14 +30,14 @@ async function saveMessage({ roomId, senderId, receiverId, type = 'text', messag
 async function getRoomMessages(roomId, limit = 50) {
   try {
     const messages = await Message.find({ roomId })
-      .populate('senderId', 'username nickname avatarUrl')
+      .populate('senderId', 'nickname avatarUrl')
       .sort({ createdAt: -1 })
       .limit(limit)
       .lean();
 
     return messages.reverse();
   } catch (err) {
-    logger.error("getRoomMessages error: %o", err);
+    logger.error("Lỗi khi lấy tin nhắn phòng: %o", err);
     throw err;
   }
 }
@@ -52,15 +52,15 @@ async function getPrivateMessages(userId1, userId2, limit = 50) {
       ],
       roomId: null,
     })
-      .populate('senderId', 'username nickname avatarUrl')
-      .populate('receiverId', 'username nickname avatarUrl')
+      .populate('senderId', 'nickname avatarUrl')
+      .populate('receiverId', 'nickname avatarUrl')
       .sort({ createdAt: -1 })
       .limit(limit)
       .lean();
 
     return messages.reverse();
   } catch (err) {
-    logger.error("getPrivateMessages error: %o", err);
+    logger.error("Lỗi khi lấy tin nhắn riêng tư: %o", err);
     throw err;
   }
 }
@@ -78,7 +78,7 @@ async function markMessageAsRead(messageId, userId) {
 
     return message;
   } catch (err) {
-    logger.error("markMessageAsRead error: %o", err);
+    logger.error("Lỗi khi đánh dấu tin nhắn đã đọc: %o", err);
     throw err;
   }
 }
@@ -92,7 +92,7 @@ async function markRoomMessagesAsRead(roomId, userId) {
     );
     return true;
   } catch (err) {
-    logger.error("markRoomMessagesAsRead error: %o", err);
+    logger.error("Lỗi khi đánh dấu tất cả tin nhắn phòng đã đọc: %o", err);
     throw err;
   }
 }

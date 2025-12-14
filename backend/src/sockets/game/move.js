@@ -119,10 +119,10 @@ async function handleMakeMove(io, socket, data) {
       return;
     }
 
-    // 8️⃣ Kiểm tra hòa (bàn cờ đầy)
+    // Kiểm tra hòa (bàn cờ đầy)
     const isDraw = game.board.every(row => row.every(cell => cell !== null));
 
-    // 🔟 Thông báo nước đi cho tất cả user trong phòng TRƯỚC khi thông báo kết quả
+    // Thông báo nước đi cho tất cả user trong phòng TRƯỚC khi thông báo kết quả
     // Đảm bảo cả 2 người chơi đều thấy nước đi cuối cùng
     const turnTimeLimitForMove = room.turnTimeLimit || 30;
     const lastMove = {
@@ -249,7 +249,7 @@ async function handleMakeMove(io, socket, data) {
       const { cleanupAllPingTracking } = require("../room");
       cleanupAllPingTracking(roomIdStr);
 
-      // 🔓 Giải phóng lock khi game kết thúc
+      // Giải phóng lock khi game kết thúc
       roomMoveLocks.delete(roomIdStr);
 
       log("Game ended - winner", { roomId: roomIdStr, winner: username });
@@ -326,7 +326,7 @@ async function handleMakeMove(io, socket, data) {
       return;
     }
 
-    // 9️⃣ Đổi lượt (nếu không thắng và không hòa)
+    // Đổi lượt (nếu không thắng và không hòa)
     // Dừng timer của lượt hiện tại
     stopTurnTimer(roomIdStr);
     
@@ -349,7 +349,7 @@ async function handleMakeMove(io, socket, data) {
       timestamp: new Date().toISOString()
     });
 
-    // 🔓 Giải phóng lock sau khi hoàn thành
+    // Giải phóng lock sau khi hoàn thành
     roomMoveLocks.delete(roomIdStr);
 
     log("Move made successfully", { roomId: roomIdStr, x, y, mark, nextTurn: game.turn });
@@ -357,7 +357,7 @@ async function handleMakeMove(io, socket, data) {
   } catch (err) {
     log("make_move error", err.message);
     
-    // 🔓 Giải phóng lock khi có lỗi
+    // Giải phóng lock khi có lỗi
     roomMoveLocks.delete(roomIdStr);
     
     // Cố gắng rollback nếu có thể

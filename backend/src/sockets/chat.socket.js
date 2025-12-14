@@ -53,7 +53,6 @@ module.exports = function chatSocket(io, socket) {
         senderId: savedMessage.senderId,
         sender: {
           _id: savedMessage.senderId._id || savedMessage.senderId,
-          username: savedMessage.senderId.username || username,
           nickname: savedMessage.senderId.nickname,
           avatarUrl: savedMessage.senderId.avatarUrl,
         },
@@ -144,13 +143,11 @@ module.exports = function chatSocket(io, socket) {
         receiverId: msg.receiverId?._id || msg.receiverId,
         sender: {
           _id: msg.senderId?._id || msg.senderId,
-          username: msg.senderId?.username,
           nickname: msg.senderId?.nickname,
           avatarUrl: msg.senderId?.avatarUrl,
         },
         receiver: {
           _id: msg.receiverId?._id || msg.receiverId,
-          username: msg.receiverId?.username,
           nickname: msg.receiverId?.nickname,
           avatarUrl: msg.receiverId?.avatarUrl,
         },

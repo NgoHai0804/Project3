@@ -16,7 +16,7 @@ async function register(req, res) {
 
     return response.success(res, result.data, "Registered successfully");
   } catch (err) {
-    logger.error(`register error: ${err}`);
+    logger.error(`Lỗi khi đăng ký: ${err}`);
     return response.error(res, "Internal server error", 500);
   }
 }
@@ -33,7 +33,7 @@ async function login(req, res) {
 
     return response.success(res, result.data, "Login successfully");
   } catch (err) {
-    logger.error(`login error: ${err}`);
+    logger.error(`Lỗi khi đăng nhập: ${err}`);
     return response.error(res, "Internal server error", 500);
   }
 }
@@ -50,7 +50,23 @@ async function forgotPassword(req, res) {
 
     return response.success(res, result.data, result.data.message || "Password reset email sent successfully");
   } catch (err) {
-    logger.error(`forgotPassword error: ${err}`);
+    logger.error(`Lỗi khi quên mật khẩu: ${err}`);
+    return response.error(res, "Internal server error", 500);
+  }
+}
+
+// Xử lý reset mật khẩu với mã xác nhận
+async function resetPassword(req, res) {
+  try {
+    const result = await authService.resetPassword(req.body);
+
+    if (result.error) {
+      return response.error(res, result.error, result.code || 400);
+    }
+
+    return response.success(res, result.data, result.data.message || "Password reset successfully");
+  } catch (err) {
+    logger.error(`Lỗi khi đặt lại mật khẩu: ${err}`);
     return response.error(res, "Internal server error", 500);
   }
 }
@@ -72,7 +88,7 @@ async function refresh(req, res) {
 
     return response.success(res, result.data, "Token refreshed successfully");
   } catch (err) {
-    logger.error(`refresh error: ${err}`);
+    logger.error(`Lỗi khi làm mới token: ${err}`);
     return response.error(res, "Internal server error", 500);
   }
 }
@@ -81,5 +97,6 @@ module.exports = {
   register,
   login,
   forgotPassword,
+  resetPassword,
   refresh,
 };

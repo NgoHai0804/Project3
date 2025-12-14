@@ -17,6 +17,14 @@ FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 
+# Build arguments cho frontend
+ARG VITE_API_URL=https://baitaplonweb20251.onrender.com
+ARG VITE_SOCKET_URL=https://baitaplonweb20251.onrender.com
+
+# Set environment variables cho build
+ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_SOCKET_URL=${VITE_SOCKET_URL}
+
 # Copy package files
 COPY frontend/package*.json ./
 
@@ -26,7 +34,7 @@ RUN npm ci
 # Copy source code
 COPY frontend/ .
 
-# Build frontend
+# Build frontend với production URL
 RUN npm run build
 
 # Production image

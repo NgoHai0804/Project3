@@ -4,9 +4,23 @@ const logger = require('../utils/logger');
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_KNYhA68D_EhJZTqoRDqML2qSkytcDmuSH');
 
-// Gửi email chứa mật khẩu mới khi quên mật khẩu
-async function sendPasswordResetEmail(to, newPassword, username) {
+// Gửi email chứa mã xác nhận 6 số khi quên mật khẩu
+async function sendPasswordResetEmail(to, resetCode, username) {
   try {
+    // Kiểm tra mã xác nhận phải là 6 chữ số
+    if (!resetCode || typeof resetCode !== 'string') {
+      throw new Error('Reset code must be a string');
+    }
+    
+    // Đảm bảo mã là đúng 6 chữ số
+    const codeStr = resetCode.toString().trim();
+    if (!/^\d{6}$/.test(codeStr)) {
+      logger.error(`Định dạng mã xác nhận không hợp lệ: ${resetCode}`);
+      throw new Error('Reset code must be exactly 6 digits');
+    }
+    
+    // Sử dụng mã đã được validate
+    const validatedCode = codeStr;
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -42,13 +56,14 @@ async function sendPasswordResetEmail(to, newPassword, username) {
             background-color: #f3f4f6;
             border: 2px solid #2563eb;
             border-radius: 5px;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
             margin: 20px 0;
-            font-size: 18px;
+            font-size: 32px;
             font-weight: bold;
             color: #1e40af;
-            letter-spacing: 2px;
+            letter-spacing: 8px;
+            font-family: 'Courier New', monospace;
           }
           .warning {
             background-color: #fef3c7;
@@ -76,19 +91,23 @@ async function sendPasswordResetEmail(to, newPassword, username) {
             
             <p>Chúng tôi đã nhận được yêu cầu khôi phục mật khẩu cho tài khoản của bạn.</p>
             
-            <p>Mật khẩu mới của bạn là:</p>
+            <p>Mã xác nhận 6 số của bạn là:</p>
             
             <div class="password-box">
-              ${newPassword}
+              ${validatedCode}
             </div>
             
-            <p>Vui lòng sử dụng mật khẩu này để đăng nhập và thay đổi mật khẩu sau khi đăng nhập thành công.</p>
+            <p style="text-align: center; font-size: 14px; color: #6b7280; margin-top: 10px;">
+              Mã này có hiệu lực trong <strong>15 phút</strong>
+            </p>
+            
+            <p>Vui lòng sử dụng mã này để đặt lại mật khẩu mới trên trang web.</p>
             
             <div class="warning">
               <strong>Lưu ý bảo mật:</strong>
               <ul style="margin: 10px 0; padding-left: 20px;">
-                <li>Không chia sẻ mật khẩu này với bất kỳ ai</li>
-                <li>Thay đổi mật khẩu ngay sau khi đăng nhập</li>
+                <li>Không chia sẻ mã này với bất kỳ ai</li>
+                <li>Mã này chỉ có hiệu lực trong 15 phút</li>
                 <li>Nếu bạn không yêu cầu khôi phục mật khẩu, vui lòng bỏ qua email này</li>
               </ul>
             </div>
@@ -112,13 +131,13 @@ Xin chào ${username},
 
 Chúng tôi đã nhận được yêu cầu khôi phục mật khẩu cho tài khoản của bạn.
 
-Mật khẩu mới của bạn là: ${newPassword}
+Mã xác nhận của bạn là: ${validatedCode}
 
-Vui lòng sử dụng mật khẩu này để đăng nhập và thay đổi mật khẩu sau khi đăng nhập thành công.
+Vui lòng sử dụng mã này để đặt lại mật khẩu mới. Mã này có hiệu lực trong 15 phút.
 
 Lưu ý bảo mật:
-- Không chia sẻ mật khẩu này với bất kỳ ai
-- Thay đổi mật khẩu ngay sau khi đăng nhập
+- Không chia sẻ mã này với bất kỳ ai
+- Mã này chỉ có hiệu lực trong 15 phút
 - Nếu bạn không yêu cầu khôi phục mật khẩu, vui lòng bỏ qua email này
 
 Trân trọng,
@@ -134,15 +153,15 @@ Email này được gửi tự động, vui lòng không trả lời email này.
     const data = await resend.emails.send({
       from: fromEmail,
       to: to,
-      subject: 'Mật khẩu mới - Caro Online',
+      subject: 'Mã xác nhận khôi phục mật khẩu - Caro Online',
       html: htmlContent,
       text: textContent,
     });
 
-    logger.info(`Password reset email sent to ${to}. Email ID: ${data.id || data.data?.id}`);
+    logger.info(`Đã gửi email khôi phục mật khẩu đến ${to}. Email ID: ${data.id || data.data?.id}`);
     return true;
   } catch (error) {
-    logger.error(`Failed to send password reset email to ${to}: ${error.message}`);
+    logger.error(`Gửi email khôi phục mật khẩu thất bại đến ${to}: ${error.message}`);
     throw error;
   }
 }

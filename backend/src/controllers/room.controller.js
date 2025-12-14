@@ -23,10 +23,10 @@ async function createRoom(req, res) {
       hostId: userId,
       hostUsername: req.user.username || req.user.nickname,
     });
-    logger.info(`Tạo phòng ${room._id}`);
+    logger.info(`Đã tạo phòng ${room._id}`);
     return response.success(res, room, "Tạo phòng thành công", 201);
   } catch (err) {
-    logger.error("createRoom error: %o", err);
+    logger.error("Lỗi khi tạo phòng: %o", err);
     return response.error(res, err.message, 400);
   }
 }
@@ -45,7 +45,7 @@ async function joinRoom(req, res) {
     req.io.to(room._id.toString()).emit("room:update", room);
     return response.success(res, room, "Tham gia phòng thành công");
   } catch (err) {
-    logger.warn("joinRoom failed: %o", err.message);
+    logger.warn("Tham gia phòng thất bại: %o", err.message);
     return response.error(res, err.message, 400);
   }
 }
@@ -65,7 +65,7 @@ async function leaveRoom(req, res) {
     }
     return response.success(res, room, "Rời phòng thành công");
   } catch (err) {
-    logger.error("leaveRoom error: %o", err);
+    logger.error("Lỗi khi rời phòng: %o", err);
     return response.error(res, err.message, 400);
   }
 }
@@ -77,7 +77,7 @@ async function updateRoom(req, res) {
     const room = await RoomService.updateRoom(roomId, data);
     return response.success(res, room, "Cập nhật phòng thành công");
   } catch (err) {
-    logger.error("updateRoom error: %o", err);
+    logger.error("Lỗi khi cập nhật phòng: %o", err);
     return response.error(res, err.message, 400);
   }
 }
@@ -96,7 +96,7 @@ async function toggleReady(req, res) {
 
     return response.success(res, room, "Cập nhật trạng thái thành công");
   } catch (err) {
-    logger.error("toggleReady error: %o", err);
+    logger.error("Lỗi khi bật/tắt trạng thái sẵn sàng: %o", err);
     return response.error(res, err.message, 400);
   }
 }
@@ -110,7 +110,7 @@ async function endGame(req, res) {
     req.io.to(room._id.toString()).emit("room:end", { result, room });
     return response.success(res, room, "Trận đấu kết thúc");
   } catch (err) {
-    logger.error("endGame error: %o", err);
+    logger.error("Lỗi khi kết thúc trận đấu: %o", err);
     return response.error(res, err.message, 400);
   }
 }
@@ -121,7 +121,7 @@ async function getRoomList(req, res) {
     const rooms = await RoomService.getAllRooms();
     return response.success(res, rooms, "Danh sách phòng");
   } catch (err) {
-    logger.error("getRooms error: %o", err);
+    logger.error("Lỗi khi lấy danh sách phòng: %o", err);
     return response.error(res, err.message, 400);
   }
 }
@@ -138,7 +138,7 @@ async function checkUserRoom(req, res) {
     
     return response.success(res, { inRoom: true, room }, "User đang ở trong phòng");
   } catch (err) {
-    logger.error("checkUserRoom error: %o", err);
+    logger.error("Lỗi khi kiểm tra phòng của người dùng: %o", err);
     return response.error(res, err.message, 400);
   }
 }
@@ -148,18 +148,18 @@ async function verifyPassword(req, res) {
   try {
     const { roomId, password } = req.body;
     const userId = req.user._id;
-    logger.info("verifyPassword request:", { roomId, hasPassword: !!password, passwordLength: password?.length, userId });
+    logger.info("Yêu cầu xác minh mật khẩu phòng:", { roomId, hasPassword: !!password, passwordLength: password?.length, userId });
     
     if (!roomId) {
-      logger.warn("verifyPassword: roomId is missing");
+      logger.warn("Xác minh mật khẩu: thiếu roomId");
       return response.error(res, "Thiếu roomId", 400);
     }
     
     const result = await RoomService.verifyPassword({ roomId, password, userId });
-    logger.info("verifyPassword success:", { roomId });
+    logger.info("Xác minh mật khẩu thành công:", { roomId });
     return response.success(res, result, "Mật khẩu đúng");
   } catch (err) {
-    logger.warn("verifyPassword failed: %o", err.message);
+    logger.warn("Xác minh mật khẩu thất bại: %o", err.message);
     return response.error(res, err.message, 400);
   }
 }

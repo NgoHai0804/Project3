@@ -88,10 +88,26 @@ const Leaderboard = () => {
               ) : (
                 leaderboard.map((player, index) => {
                   const userId = player._id || player.userId || player.id;
+                  
+                  // Xác định màu sắc cho top 3
+                  const getRankColor = () => {
+                    if (index === 0) return 'text-yellow-600'; // Top 1 - Vàng
+                    if (index === 1) return 'text-gray-600'; // Top 2 - Bạc
+                    if (index === 2) return 'text-orange-600'; // Top 3 - Đồng
+                    return 'text-gray-600'; // Các vị trí khác
+                  };
+                  
+                  const getRowBgColor = () => {
+                    if (index === 0) return 'bg-gradient-to-r from-yellow-50 via-amber-50 to-yellow-50 hover:from-yellow-100 hover:via-amber-100 hover:to-yellow-100 border-l-4 border-yellow-500 shadow-md'; // Top 1 - Gradient vàng
+                    if (index === 1) return 'bg-gradient-to-r from-slate-100 via-gray-100 to-slate-100 hover:from-slate-200 hover:via-gray-200 hover:to-slate-200 border-l-4 border-slate-500 shadow-md'; // Top 2 - Gradient bạc đẹp hơn
+                    if (index === 2) return 'bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 hover:from-orange-100 hover:via-amber-100 hover:to-orange-100 border-l-4 border-orange-500 shadow-md'; // Top 3 - Gradient đồng
+                    return 'bg-white hover:bg-gray-50'; // Các vị trí khác
+                  };
+                  
                   return (
                     <tr 
                       key={player._id || index} 
-                      className="hover:bg-gray-50 cursor-pointer transition-colors"
+                      className={`${getRowBgColor()} cursor-pointer transition-colors`}
                       onClick={() => {
                         if (userId) {
                           navigate(`/profile/${userId}`);
@@ -100,10 +116,9 @@ const Leaderboard = () => {
                     >
                       <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          {index === 0 && <span className="text-xl sm:text-2xl mr-1 sm:mr-2">🥇</span>}
-                          {index === 1 && <span className="text-xl sm:text-2xl mr-1 sm:mr-2">🥈</span>}
-                          {index === 2 && <span className="text-xl sm:text-2xl mr-1 sm:mr-2">🥉</span>}
-                          <span className="text-base sm:text-lg font-semibold">#{index + 1}</span>
+                          <span className={`text-base sm:text-lg font-bold ${getRankColor()}`}>
+                            #{index + 1}
+                          </span>
                         </div>
                       </td>
                       <td className="px-3 sm:px-6 py-3 sm:py-4">
@@ -125,7 +140,9 @@ const Leaderboard = () => {
                         </div>
                       </td>
                       <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                        <div className="text-base sm:text-lg font-bold text-blue-600">{player.score || 0}</div>
+                        <div className={`text-base sm:text-lg font-bold ${index < 3 ? getRankColor() : 'text-blue-600'}`}>
+                          {player.score || 0}
+                        </div>
                       </td>
                     </tr>
                   );

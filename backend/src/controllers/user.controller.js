@@ -14,7 +14,7 @@ async function getProfile(req, res) {
 
     return response.success(res, user, "Lấy thông tin profile thành công");
   } catch (err) {
-    logger.error(`getProfile error: ${err}`);
+    logger.error(`Lỗi khi lấy profile: ${err}`);
     return response.error(res, err.message, 500);
   }
 }
@@ -29,7 +29,7 @@ async function updateProfile(req, res) {
 
     return response.success(res, updatedUser, "Cập nhật profile thành công");
   } catch (err) {
-    logger.error(`updateProfile error: ${err}`);
+    logger.error(`Lỗi khi cập nhật profile: ${err}`);
     return response.error(res, err.message, 400);
   }
 }
@@ -44,7 +44,7 @@ async function getUserProfile(req, res) {
 
     return response.success(res, user, "Lấy thông tin người dùng thành công");
   } catch (err) {
-    logger.error(`getUserProfile error: ${err}`);
+    logger.error(`Lỗi khi lấy profile người dùng: ${err}`);
     return response.error(res, err.message, 500);
   }
 }
@@ -55,7 +55,7 @@ async function getLeaderboard(req, res) {
     const users = await userService.getLeaderboard(req.query.gameId);
     return response.success(res, users, "Get leaderboard success");
   } catch (err) {
-    logger.error(`getLeaderboard error: ${err}`);
+    logger.error(`Lỗi khi lấy bảng xếp hạng: ${err}`);
     return response.error(res, err.message, 500);
   }
 }
@@ -66,7 +66,7 @@ async function changePassword(req, res) {
     const result = await userService.changePassword(req.user._id, req.body);
     return response.success(res, result, result.message || "Đổi mật khẩu thành công");
   } catch (err) {
-    logger.error(`changePassword error: ${err}`);
+    logger.error(`Lỗi khi đổi mật khẩu: ${err}`);
     return response.error(res, err.message, 400);
   }
 }
@@ -88,7 +88,7 @@ async function getGameHistory(req, res) {
       skip
     }, "Lấy lịch sử chơi thành công");
   } catch (err) {
-    logger.error(`getGameHistory error: ${err}`);
+    logger.error(`Lỗi khi lấy lịch sử chơi: ${err}`);
     return response.error(res, err.message, 500);
   }
 }
@@ -110,7 +110,7 @@ async function getUserGameHistory(req, res) {
       skip
     }, "Lấy lịch sử chơi thành công");
   } catch (err) {
-    logger.error(`getUserGameHistory error: ${err}`);
+    logger.error(`Lỗi khi lấy lịch sử chơi của người dùng: ${err}`);
     return response.error(res, err.message, 500);
   }
 }
@@ -123,7 +123,7 @@ async function getGameDetail(req, res) {
 
     return response.success(res, game, "Lấy chi tiết game thành công");
   } catch (err) {
-    logger.error(`getGameDetail error: ${err}`);
+    logger.error(`Lỗi khi lấy chi tiết game: ${err}`);
     return response.error(res, err.message, 500);
   }
 }

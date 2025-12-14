@@ -50,7 +50,6 @@ async function handleJoinRoom(io, socket, data) {
       // Thông báo cho các user khác về người chơi mới
       socket.to(roomIdStr).emit("player_joined", { 
         userId, 
-        username,
         nickname,
         room: roomAfterJoin,
         message: `${nickname} đã tham gia phòng`,
@@ -72,7 +71,7 @@ async function handleJoinRoom(io, socket, data) {
       });
     }
 
-    log("Người chơi đã tham gia thành công", { roomId: roomIdStr, userId, username, wasReconnect: wasAlreadyInRoom });
+    log("Người chơi đã tham gia thành công", { roomId: roomIdStr, userId, nickname, wasReconnect: wasAlreadyInRoom });
 
   } catch (err) {
     log("Lỗi join_room", err.message);

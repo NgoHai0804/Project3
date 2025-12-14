@@ -11,7 +11,7 @@ async function getFriends(req, res) {
     const friends = await friendService.getFriendsList(userId);
     return response.success(res, friends, "Get friends list success");
   } catch (err) {
-    console.error("getFriends error:", err);
+    console.error("Lỗi khi lấy danh sách bạn bè:", err);
     return response.error(res, err.message);
   }
 }
@@ -32,7 +32,7 @@ async function sendRequest(req, res) {
     const request = await friendService.sendFriendRequest(requesterId, addresseeId);
     return response.success(res, request, "Friend request sent");
   } catch (err) {
-    console.error("sendRequest error:", err);
+    console.error("Lỗi khi gửi lời mời kết bạn:", err);
     return response.error(res, err.message);
   }
 }
@@ -45,7 +45,7 @@ async function getRequests(req, res) {
     const requests = await friendService.getPendingRequests(userId);
     return response.success(res, requests, "Get pending requests success");
   } catch (err) {
-    console.error("getRequests error:", err);
+    console.error("Lỗi khi lấy danh sách lời mời kết bạn đang chờ:", err);
     return response.error(res, err.message);
   }
 }
@@ -59,7 +59,7 @@ async function acceptRequest(req, res) {
     const result = await friendService.acceptFriendRequest(requesterId, userId);
     return response.success(res, result, "Friend request accepted");
   } catch (err) {
-    console.error("acceptRequest error:", err);
+    console.error("Lỗi khi chấp nhận lời mời kết bạn:", err);
     return response.error(res, err.message);
   }
 }
@@ -74,7 +74,7 @@ async function cancelRequest(req, res) {
     await friendService.cancelFriendRequest(requesterId, userId);
     return response.success(res, {}, "Friend request canceled");
   } catch (err) {
-    console.error("cancelRequest error:", err);
+    console.error("Lỗi khi hủy lời mời kết bạn:", err);
     return response.error(res, err.message);
   }
 }
@@ -94,7 +94,7 @@ async function searchUser(req, res) {
     }
     return response.success(res, users, "Tìm kiếm thành công");
   } catch (err) {
-    console.error("searchUser error:", err);
+    console.error("Lỗi khi tìm kiếm người dùng:", err);
     return response.error(res, err.message);
   }
 }
@@ -108,7 +108,7 @@ async function removeFriend(req, res) {
     await friendService.removeFriend(userId, friendId);
     return response.success(res, {}, "Friend removed");
   } catch (err) {
-    console.error("removeFriend error:", err);
+    console.error("Lỗi khi xóa bạn bè:", err);
     return response.error(res, err.message);
   }
 }

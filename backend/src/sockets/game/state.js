@@ -143,7 +143,6 @@ async function initGameForRoom(roomId, players) {
 
 module.exports = {
   roomGames,
-  // socketToRoom được export từ room/join.js, không cần export lại
   initBoard,
   getGameState,
   emitGameStateSync,

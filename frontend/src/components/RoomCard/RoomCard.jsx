@@ -8,7 +8,7 @@ const RoomCard = ({ room }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const handleJoin = () => {
-    if (room.passwordHash) {
+    if (room.hasPassword) {
       setShowPasswordModal(true);
     } else {
       navigate(`/game/${room._id}`);
@@ -46,8 +46,8 @@ const RoomCard = ({ room }) => {
           <h3 className="text-lg font-semibold text-gray-800">{room.name}</h3>
           <div className="flex items-center gap-2 mt-1">
             {getStatusBadge()}
-            {room.passwordHash && (
-              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">🔒 Có mật khẩu</span>
+            {room.hasPassword && (
+              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Có mật khẩu</span>
             )}
           </div>
         </div>
@@ -60,10 +60,10 @@ const RoomCard = ({ room }) => {
             {room.players?.length || 0} / {room.maxPlayers}
           </span>
         </div>
-        {room.hostUsername && (
+        {room.hostNickname && (
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600">Chủ phòng:</span>
-            <span className="font-medium">{room.hostUsername}</span>
+            <span className="font-medium">{room.hostNickname}</span>
           </div>
         )}
       </div>

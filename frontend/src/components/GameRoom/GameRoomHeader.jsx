@@ -18,9 +18,9 @@ const GameRoomHeader = ({
                 {currentRoom?.name || roomInfo?.name || 'Phòng chơi'}
               </h1>
               <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-1 text-xs sm:text-sm text-gray-600">
-                {currentRoom?.passwordHash && (
+                {currentRoom?.hasPassword && (
                   <span className="flex items-center gap-1 whitespace-nowrap">
-                    🔒 Có mật khẩu
+                     Có mật khẩu
                   </span>
                 )}
                 <span className="flex items-center gap-1 whitespace-nowrap">

@@ -37,6 +37,15 @@ export const authApi = {
     const response = await apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
     return response.data;
   },
+
+  resetPassword: async (email, code, newPassword) => {
+    const response = await apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, { 
+      email, 
+      code, 
+      newPassword 
+    });
+    return response.data;
+  },
 };
 
 export default authApi;

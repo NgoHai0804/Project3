@@ -17,7 +17,7 @@ async function getBotMove(req, res) {
 
     return response.success(res, { move, difficulty }, "Bot move generated");
   } catch (err) {
-    logger.error(`getBotMove error: ${err}`);
+    logger.error(`Lỗi khi tính nước đi bot: ${err}`);
     return response.error(res, err.message, 500);
   }
 }

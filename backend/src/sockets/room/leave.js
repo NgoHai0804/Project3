@@ -145,14 +145,14 @@ async function handleLeaveRoom(io, socket, data) {
       }
     }
 
-    // 1️⃣ Thông báo cho user vừa rời phòng
+    // Thông báo cho user vừa rời phòng
     socket.emit("leave_success", { 
       message: roomBefore.status === "playing" ? "Bạn đã rời phòng (tự động thua)" : "Bạn đã rời phòng",
       timestamp: new Date().toISOString()
     });
 
     if (roomAfter) {
-      // 2️⃣ Thông báo cho các user khác trong phòng về việc player rời phòng
+      // Thông báo cho các user khác trong phòng về việc player rời phòng
       io.to(roomIdStr).emit("player_left", { 
         userId, 
         username,
@@ -162,7 +162,7 @@ async function handleLeaveRoom(io, socket, data) {
         timestamp: new Date().toISOString() 
       });
 
-      // 3️⃣ Cập nhật trạng thái phòng cho tất cả user còn lại
+      // Cập nhật trạng thái phòng cho tất cả user còn lại
       io.to(roomIdStr).emit("room_update", {
         room: roomAfter,
         message: `${nickname} đã rời phòng`,

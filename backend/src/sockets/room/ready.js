@@ -49,9 +49,6 @@ async function handlePlayerReady(io, socket, data) {
       message: `${nickname} ${isReady !== false ? 'đã sẵn sàng' : 'đã hủy sẵn sàng'}`,
       timestamp: new Date().toISOString()
     });
-
-    // Lưu ý: Không tự động start game, chủ phòng phải bấm nút start thủ công
-
   } catch (err) {
     log("Lỗi player_ready", err.message);
     socket.emit("ready_error", { message: err.message });

@@ -30,6 +30,9 @@ const UserSchema = new Schema({
 
   gameStats: { type: [GameStatSchema], default: [] }, // Thống kê game của user (mỗi game một object)
 
+  resetPasswordCode: { type: String }, // Mã xác nhận 6 số để reset mật khẩu
+  resetPasswordCodeExpires: { type: Date }, // Thời gian hết hạn của mã xác nhận
+
   createdAt: { type: Date, default: Date.now }, // Thời gian tạo tài khoản
   lastOnline: { type: Date }, // Thời gian online gần nhất (cập nhật realtime qua Socket.IO)
 });

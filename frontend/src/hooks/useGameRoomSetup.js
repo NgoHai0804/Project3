@@ -166,7 +166,7 @@ export const useGameRoomSetup = (roomId) => {
         const passwordFromState = location?.state?.password;
         const passwordToUse = savedPassword || passwordFromState;
         
-        if (room.passwordHash) {
+        if (room.hasPassword) {
           if (passwordToUse) {
             try {
               await roomApi.verifyPassword(roomId, passwordToUse);

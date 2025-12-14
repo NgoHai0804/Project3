@@ -9,7 +9,7 @@ async function saveGameHistory({ roomId, gameState, result, boardSize = 20, mode
   try {
     const room = await Room.findById(roomId);
     if (!room) {
-      logger.warn(`Room not found for saving game history: ${roomId}`);
+      logger.warn(`Không tìm thấy phòng để lưu lịch sử game: ${roomId}`);
       throw new Error("Phòng không tồn tại");
     }
 
@@ -76,10 +76,10 @@ async function saveGameHistory({ roomId, gameState, result, boardSize = 20, mode
       moves: moves
     });
 
-    logger.info(`Game history saved: ${gameCaro._id} for room ${roomId}`);
+    logger.info(`Đã lưu lịch sử game: ${gameCaro._id} cho phòng ${roomId}`);
     return gameCaro;
   } catch (err) {
-    logger.error("saveGameHistory error: %o", err);
+    logger.error("Lỗi khi lưu lịch sử game: %o", err);
     throw err;
   }
 }
@@ -96,9 +96,9 @@ async function getUserGameHistory(userId, options = {}) {
         { playerO: userId }
       ]
     })
-      .populate('playerX', 'username nickname avatarUrl')
-      .populate('playerO', 'username nickname avatarUrl')
-      .populate('winnerId', 'username nickname avatarUrl')
+      .populate('playerX', 'nickname avatarUrl')
+      .populate('playerO', 'nickname avatarUrl')
+      .populate('winnerId', 'nickname avatarUrl')
       .sort({ endedAt: -1 })
       .limit(limit)
       .skip(skip)
@@ -106,7 +106,7 @@ async function getUserGameHistory(userId, options = {}) {
 
     return games;
   } catch (err) {
-    logger.error("getUserGameHistory error: %o", err);
+    logger.error("Lỗi khi lấy lịch sử game của người dùng: %o", err);
     throw err;
   }
 }
@@ -115,9 +115,9 @@ async function getUserGameHistory(userId, options = {}) {
 async function getGameById(gameId) {
   try {
     const game = await GameCaro.findById(gameId)
-      .populate('playerX', 'username nickname avatarUrl')
-      .populate('playerO', 'username nickname avatarUrl')
-      .populate('winnerId', 'username nickname avatarUrl')
+      .populate('playerX', 'nickname avatarUrl')
+      .populate('playerO', 'nickname avatarUrl')
+      .populate('winnerId', 'nickname avatarUrl')
       .lean();
 
     if (!game) {
@@ -126,7 +126,7 @@ async function getGameById(gameId) {
 
     return game;
   } catch (err) {
-    logger.error("getGameById error: %o", err);
+    logger.error("Lỗi khi lấy game theo ID: %o", err);
     throw err;
   }
 }
@@ -142,7 +142,7 @@ async function getUserGameCount(userId) {
     });
     return count;
   } catch (err) {
-    logger.error("getUserGameCount error: %o", err);
+    logger.error("Lỗi khi lấy số lượng game của người dùng: %o", err);
     throw err;
   }
 }

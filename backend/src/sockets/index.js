@@ -108,21 +108,21 @@ function initSocket(server) {
     // ---------------------------
     // Timeout & ping/pong - giữ kết nối sống
     // ---------------------------
-    // Thiết lập timeout 15 giây để phù hợp với ping gửi mỗi 5 giây
+    // Thiết lập timeout 60 giây để phù hợp với ping gửi mỗi 5 giây
     let pingTimeout = setTimeout(() => {
       console.log(`User ${socket.id} đã hết thời gian (timeout)`);
       socket.disconnect(true);
-    }, 15000);
+    }, 60000);
 
     // Xử lý ping từ client để giữ kết nối
     socket.on("ping_server", () => {
       console.log(`Đã nhận ping từ ${socket.id}`);
       clearTimeout(pingTimeout);
-      // Reset timeout mỗi khi nhận được ping (gia hạn thêm 15 giây)
+      // Reset timeout mỗi khi nhận được ping (gia hạn thêm 60 giây)
       pingTimeout = setTimeout(() => {
         console.log(`User ${socket.id} đã hết thời gian (timeout)`);
         socket.disconnect(true);
-      }, 15000);
+      }, 60000);
       // Gửi pong về client
       socket.emit("pong_server", { time: Date.now() });
     });

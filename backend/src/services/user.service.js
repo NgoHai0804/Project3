@@ -6,34 +6,34 @@ const User = require("../models/user.model");
 const { checkData, checkNickname, hashPassword } = require("../utils/validation");
 const logger = require("../utils/logger");
 
-// Lấy profile của user (không có password, username, email)
+// Lấy profile của user (không có password, username, email, resetPasswordCode)
 const getUserProfile = async (userId) => {
   try {
-    const user = await User.findById(userId).select("-passwordHash -username -email");
+    const user = await User.findById(userId).select("-passwordHash -username -email -resetPasswordCode -resetPasswordCodeExpires");
     if (!user) {
-      logger.warn(`User not found: ${userId}`);
+      logger.warn(`Không tìm thấy người dùng: ${userId}`);
       throw new Error("Không tìm thấy người dùng");
     }
-    logger.info(`Fetched profile for user: ${userId}`);
+    logger.info(`Đã lấy thông tin profile cho người dùng: ${userId}`);
     return user;
   } catch (err) {
-    logger.error("getUserProfile error: %o", err);
+    logger.error("Lỗi khi lấy profile người dùng: %o", err);
     throw err;
   }
 };
 
-// Lấy profile đầy đủ (có username, email) - chỉ dùng cho chính user đó
+// Lấy profile đầy đủ - chỉ dùng cho chính user đó (không trả về username, email, resetPasswordCode để bảo mật)
 const getUserProfileFull = async (userId) => {
   try {
-    const user = await User.findById(userId).select("-passwordHash");
+    const user = await User.findById(userId).select("-passwordHash -username -email -resetPasswordCode -resetPasswordCodeExpires");
     if (!user) {
-      logger.warn(`User not found: ${userId}`);
+      logger.warn(`Không tìm thấy người dùng: ${userId}`);
       throw new Error("Không tìm thấy người dùng");
     }
-    logger.info(`Fetched full profile for user: ${userId}`);
+    logger.info(`Đã lấy thông tin profile đầy đủ cho người dùng: ${userId}`);
     return user;
   } catch (err) {
-    logger.error("getUserProfileFull error: %o", err);
+    logger.error("Lỗi khi lấy profile đầy đủ người dùng: %o", err);
     throw err;
   }
 };
@@ -64,15 +64,15 @@ const updateUserProfile = async (userId, { nickname, avatarUrl, password } = {})
     }
 
     if (Object.keys(updateData).length === 0) {
-      logger.info(`No update needed for user: ${userId}`);
-      return await User.findById(userId).select("-passwordHash -username -email");
+      logger.info(`Không cần cập nhật cho người dùng: ${userId}`);
+      return await User.findById(userId).select("-passwordHash -username -email -resetPasswordCode -resetPasswordCodeExpires");
     }
 
-    const user = await User.findByIdAndUpdate(userId, updateData, { new: true }).select("-passwordHash -username -email");
-    logger.info(`Updated profile for user: ${userId}`);
+    const user = await User.findByIdAndUpdate(userId, updateData, { new: true }).select("-passwordHash -username -email -resetPasswordCode -resetPasswordCodeExpires");
+    logger.info(`Đã cập nhật profile cho người dùng: ${userId}`);
     return user;
   } catch (err) {
-    logger.error("updateUserProfile error: %o", err);
+    logger.error("Lỗi khi cập nhật profile người dùng: %o", err);
     throw err;
   }
 };
@@ -89,10 +89,10 @@ const getLeaderboard = async (gameId = "caro") => {
     ];
 
     const users = await User.aggregate(pipeline);
-    logger.info(`Fetched leaderboard for gameId: ${gameId}`);
+    logger.info(`Đã lấy bảng xếp hạng cho gameId: ${gameId}`);
     return users;
   } catch (err) {
-    logger.error("getLeaderboard error: %o", err);
+    logger.error("Lỗi khi lấy bảng xếp hạng: %o", err);
     throw err;
   }
 };
@@ -107,7 +107,7 @@ const updateGameStats = async (userId, gameId = "caro", isWin, isDraw = false) =
 
     const user = await User.findById(userObjectId);
     if (!user) {
-      logger.warn(`User not found for stats update: ${userId}`);
+      logger.warn(`Không tìm thấy người dùng để cập nhật thống kê: ${userId}`);
       return;
     }
 
@@ -164,9 +164,9 @@ const updateGameStats = async (userId, gameId = "caro", isWin, isDraw = false) =
       );
     }
     
-    logger.info(`Updated game stats for user ${userId}: ${isWin ? 'Win' : isDraw ? 'Draw' : 'Lose'}`);
+    logger.info(`Đã cập nhật thống kê game cho người dùng ${userId}: ${isWin ? 'Thắng' : isDraw ? 'Hòa' : 'Thua'}`);
   } catch (err) {
-    logger.error("updateGameStats error: %o", err);
+    logger.error("Lỗi khi cập nhật thống kê game: %o", err);
     throw err;
   }
 };
@@ -175,13 +175,13 @@ const updateGameStats = async (userId, gameId = "caro", isWin, isDraw = false) =
 const updateUserStatus = async (userId, status) => {
   try {
     if (!userId || !status) {
-      logger.warn(`Invalid params for updateUserStatus: userId=${userId}, status=${status}`);
+      logger.warn(`Tham số không hợp lệ cho updateUserStatus: userId=${userId}, status=${status}`);
       return;
     }
 
     const validStatuses = ["offline", "online", "in_game", "banned"];
     if (!validStatuses.includes(status)) {
-      logger.warn(`Invalid status: ${status}`);
+      logger.warn(`Trạng thái không hợp lệ: ${status}`);
       return;
     }
 
@@ -194,17 +194,17 @@ const updateUserStatus = async (userId, status) => {
       userId,
       updateData,
       { new: true }
-    ).select("-passwordHash -username -email");
+    ).select("-passwordHash -username -email -resetPasswordCode -resetPasswordCodeExpires");
 
     if (!user) {
-      logger.warn(`User not found for status update: ${userId}`);
+      logger.warn(`Không tìm thấy người dùng để cập nhật trạng thái: ${userId}`);
       return;
     }
 
-    logger.info(`Updated user status: ${userId} -> ${status}`);
+    logger.info(`Đã cập nhật trạng thái người dùng: ${userId} -> ${status}`);
     return user;
   } catch (err) {
-    logger.error("updateUserStatus error: %o", err);
+    logger.error("Lỗi khi cập nhật trạng thái người dùng: %o", err);
   }
 };
 
@@ -234,10 +234,10 @@ const changePassword = async (userId, { currentPassword, newPassword }) => {
     user.passwordHash = newPasswordHash;
     await user.save();
 
-    logger.info(`Password changed for user: ${userId}`);
+    logger.info(`Đã đổi mật khẩu cho người dùng: ${userId}`);
     return { success: true, message: "Đổi mật khẩu thành công" };
   } catch (err) {
-    logger.error("changePassword error: %o", err);
+    logger.error("Lỗi khi đổi mật khẩu: %o", err);
     throw err;
   }
 };

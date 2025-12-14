@@ -89,7 +89,7 @@ async function handleStartGame(io, socket, data) {
           : roomAfter.playerMarks)
       : {};
 
-    // 1️⃣ Thông báo cho tất cả user trong phòng về việc game bắt đầu
+    // 1Thông báo cho tất cả user trong phòng về việc game bắt đầu
     io.to(roomIdStr).emit("game_start", { 
       players: roomAfter.players,
       room: roomAfter,
@@ -105,14 +105,14 @@ async function handleStartGame(io, socket, data) {
       timestamp: new Date().toISOString()
     });
 
-    // 2️⃣ Cập nhật trạng thái phòng cho tất cả user
+    // 2Cập nhật trạng thái phòng cho tất cả user
     io.to(roomIdStr).emit("room_update", {
       room: roomAfter,
       message: "Game đã bắt đầu",
       timestamp: new Date().toISOString()
     });
 
-    // 3️⃣ Cập nhật status = 'in_game' cho tất cả players
+    // Cập nhật status = 'in_game' cho tất cả players
     try {
       roomAfter.players.forEach(async (player) => {
         if (player.userId) {

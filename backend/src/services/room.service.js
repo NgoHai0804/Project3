@@ -14,7 +14,7 @@ async function getUserElo(userId) {
     const caroStats = user.gameStats.find(s => s.gameId === 'caro') || user.gameStats[0];
     return caroStats?.score || 1000;
   } catch (error) {
-    console.error('Error getting user ELO:', error);
+    console.error('Lỗi khi lấy điểm ELO của người dùng:', error);
     return 1000; // Điểm ELO mặc định khi có lỗi
   }
 }
@@ -25,7 +25,7 @@ async function getUserNickname(userId) {
     const user = await User.findById(userId).select('nickname username');
     return user?.nickname || user?.username || 'Unknown';
   } catch (error) {
-    console.error('Error getting user nickname:', error);
+    console.error('Lỗi khi lấy nickname của người dùng:', error);
     return 'Unknown';
   }
 }
@@ -33,6 +33,9 @@ async function getUserNickname(userId) {
 // Chuyển room sang JSON và thêm thông tin ELO, nickname, avatarUrl
 async function toJSON(room) {
   const roomObj = room.toObject({ getters: true });
+  
+  // Loại bỏ passwordHash khỏi response
+  delete roomObj.passwordHash;
   
   if (roomObj.playerMarks) {
     if (roomObj.playerMarks instanceof Map) {
@@ -55,10 +58,12 @@ async function toJSON(room) {
           const user = await User.findById(player.userId).select('avatarUrl');
           avatarUrl = user?.avatarUrl || null;
         } catch (error) {
-          console.error('Error getting user avatarUrl:', error);
+          console.error('Lỗi khi lấy avatarUrl của người dùng:', error);
         }
+        // Loại bỏ username khỏi player object
+        const { username, ...playerWithoutUsername } = player;
         return {
-          ...player,
+          ...playerWithoutUsername,
           nickname: nickname,
           elo: elo,
           score: elo,
@@ -285,6 +290,8 @@ async function endGame({ roomId, result }) {
 
 // Format phòng cho danh sách (chỉ lấy thông tin cần thiết)
 async function formatRoomForList(room) {
+  // Lưu thông tin hasPassword trước khi gọi toJSON (vì toJSON sẽ loại bỏ passwordHash)
+  const hasPassword = !!room.passwordHash;
   const roomObj = await toJSON(room);
   
   // Chỉ trả về các trường cần thiết cho danh sách phòng
@@ -294,14 +301,15 @@ async function formatRoomForList(room) {
     status: roomObj.status,
     maxPlayers: roomObj.maxPlayers,
     hostId: roomObj.hostId,
-    hostUsername: roomObj.players?.find(p => p.isHost)?.username || null,
-    passwordHash: !!roomObj.passwordHash,
+    hostNickname: roomObj.players?.find(p => p.isHost)?.nickname || null,
+    hasPassword: hasPassword, // Chỉ trả về boolean, không trả về passwordHash
     players: roomObj.players?.map(player => ({
       userId: player.userId,
-      username: player.username,
+      nickname: player.nickname,
       isHost: player.isHost,
       isReady: player.isReady,
       elo: player.elo || player.score || 1000,
+      avatarUrl: player.avatarUrl,
     })) || [],
     createdAt: roomObj.createdAt,
   };
@@ -383,7 +391,7 @@ async function leaveAllOtherRooms(userId, currentRoomId) {
     try {
       await leaveRoom({ roomId: room._id.toString(), userId });
     } catch (err) {
-      console.error(`Error leaving room ${room._id}:`, err.message);
+      console.error(`Lỗi khi rời phòng ${room._id}:`, err.message);
     }
   }
 }

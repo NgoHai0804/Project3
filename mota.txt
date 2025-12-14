@@ -1,0 +1,86 @@
+Mô tả sơ qua
+
+Mô tả dự án Web Game Cờ Caro Online
+1. Tổng quan dự án
+Tên dự án: Caro Online Realtime
+Loại game: Cờ caro online 1v1 / đa người (2–4 người/phòng)
+Hình thức kết nối: Player to Player (P2P) và Player to Bot (P2B) qua server trung gian.
+Công nghệ: Frontend: React + HTML5 Canvas/WebGL, Backend: Node.js + Socket.IO, Database: PostgreSQL/MySQL.
+
+Tính năng chính:
+	Gameplay chuẩn: 5 in a row, hiển thị số lượt đi, undo/redo khi chơi với Bot.
+	AI đa cấp độ: Dễ/Trung bình/Khó, với cấp dễ “giả ngu” để người chơi thắng dễ hơn.
+	Chat đa dạng: Chat phòng + chat riêng, emoji, sticker, lưu lịch sử trong DB.
+	Phòng & Matchmaking: Tạo phòng thủ công hoặc tự động tìm đối thủ, có thể đặt mật khẩu, thông báo người vào/ra phòng, giới hạn 2–4 người.
+	Realtime: Nước đi của đối phương hiển thị bằng animation, âm thanh/nhạc nền khi có nước đi hoặc kết thúc trận.
+	Mạng xã hội: Friend list, kết bạn, mời bạn vào phòng, real-time notification.
+	Voice chat (tương lai): Có thể tích hợp WebRTC (P2P trực tiếp) hoặc server relay tùy khả năng mở rộng.
+
+
+2. Chi tiết gameplay
+	Luật chơi:
+		Cờ caro chuẩn, 5 quân liên tiếp ngang/dọc/chéo là thắng.
+		Lịch sử nước đi hiển thị số thứ tự, người chơi có thể xem lại nước đi.
+		Undo/Redo: Chỉ áp dụng khi chơi với Bot.
+
+	AI Bot:
+		3 cấp độ: Dễ (giả ngu), Trung bình (Minimax depth 2), Khó (Minimax depth 3).
+
+	Phòng và người chơi:
+		Người tạo phòng có thể đặt mật khẩu.
+		Giới hạn 2–4 người/ phòng.
+		Nếu một người rời phòng trong khi đang chơi, người còn lại thắng tự động.
+		Có hệ thống lobby hiển thị danh sách phòng + tìm kiếm + matchmaking tự động.
+
+	Chat và mạng xã hội:
+		Chat trong phòng, chat riêng giữa 2 người.
+		Emoji và sticker từ thư viện sẵn, không upload ảnh từ máy.
+		Lưu lịch sử chat trong cơ sở dữ liệu.
+		Friend list, kết bạn, mời bạn vào phòng, thông báo real-time khi bạn bè online.
+
+	Hiệu ứng & trải nghiệm:
+		Nước đi đối phương cập nhật real-time với animation.
+		Timer mỗi lượt đi.
+		Sound effects / nhạc nền.
+
+
+3. Công nghệ & kiến trúc
+	Frontend:
+		React + HTML5 Canvas/WebGL cho bàn cờ và animation.
+		Redux/Context cho state management (phòng, người chơi, chat).
+		UI cho lobby, danh sách phòng, chat, friend list, timer.
+	
+	Backend:
+		Node.js + Socket.IO cho realtime game & chat.
+		REST API cho quản lý phòng, user, friend list, lịch sử chat.
+		Database: PostgreSQL/MySQL lưu user, lịch sử trận đấu, chat, friend list.
+	
+	Realtime & kết nối:
+		Socket.IO xử lý:
+		Nước đi của người chơi.
+		Chat phòng/riêng.
+		Friend online notification.
+		Thông báo người vào/ra phòng.
+	
+	Voice chat (tương lai):
+		Ưu tiên WebRTC P2P nếu số người ít và băng thông tốt.
+		Server relay nếu cần mở rộng nhiều người hoặc bảo mật tốt hơn.
+
+4. Kế hoạch triển khai
+	Giai đoạn	Nội dung																			Công nghệ chính					Thời gian dự kiến
+	1			Thiết kế UI/UX: Lobby, phòng, bàn cờ, chat, friend list								Figma/React						1–2 tuần
+	2			Xây dựng frontend cơ bản: Bàn cờ, chat, lobby										React + Canvas					2–3 tuần
+	3			Backend cơ bản: Node.js + Socket.IO, API quản lý phòng, user, friend				Node.js + PostgreSQL			2–3 tuần
+	4			Tích hợp realtime: Nước đi, chat, friend online notification						Socket.IO						2 tuần
+	5			AI Bot 3 cấp độ, undo/redo															Node.js							1–2 tuần
+	6			Hiệu ứng & trải nghiệm: animation, sound effects, timer								React + Web Audio API			1 tuần
+	7			Test toàn bộ hệ thống, fix lỗi														Jest / Cypress					1–2 tuần
+	8			Mở rộng: voice chat, thêm tính năng kết bạn & mời bạn								WebRTC / Socket.IO				Tùy chọn
+
+
+5. Dự định mở rộng
+	Tích hợp voice chat trực tiếp trong phòng (WebRTC).
+	Hỗ trợ nhiều biến thể game caro (6×6, 10×10, hoặc custom).
+	Mobile app (React Native / Flutter) kết nối chung server với web.
+	Thêm bảng xếp hạng toàn server và friend leaderboard.
+	Tối ưu realtime server cho số lượng phòng & người chơi lớn.

@@ -44,7 +44,7 @@ async function sendFriendRequest(requesterId, addresseeId) {
         existing.updateAt = Date.now();
         await existing.save();
         await existing.populate('requester', 'nickname avatarUrl');
-        logger.info(`User ${requesterId} resent friend request to ${addresseeId}`);
+        logger.info(`Người dùng ${requesterId} đã gửi lại lời mời kết bạn đến ${addresseeId}`);
         if (io) {
           const requestData = {
             _id: existing._id,
@@ -57,10 +57,10 @@ async function sendFriendRequest(requesterId, addresseeId) {
             status: existing.status,
             createdAt: existing.createdAt,
           };
-          logger.info(`Emitting friend:requestReceived (resend) to ${addresseeId.toString()}`);
+          logger.info(`Đang gửi sự kiện friend:requestReceived (gửi lại) đến ${addresseeId.toString()}`);
           io.to(addresseeId.toString()).emit("friend:requestReceived", requestData);
         } else {
-          logger.warn("Socket.io instance not available, cannot emit friend request notification");
+          logger.warn("Socket.io không khả dụng, không thể gửi thông báo lời mời kết bạn");
         }
         return existing;
       }
@@ -73,7 +73,7 @@ async function sendFriendRequest(requesterId, addresseeId) {
 
     await newRequest.populate('requester', 'nickname avatarUrl');
 
-    logger.info(`User ${requesterId} sent friend request to ${addresseeId}`);
+    logger.info(`Người dùng ${requesterId} đã gửi lời mời kết bạn đến ${addresseeId}`);
 
     if (io) {
       const requestData = {
@@ -87,17 +87,17 @@ async function sendFriendRequest(requesterId, addresseeId) {
         status: newRequest.status,
         createdAt: newRequest.createdAt,
       };
-      logger.info(`Emitting friend:requestReceived to ${addresseeId.toString()}`);
+      logger.info(`Đang gửi sự kiện friend:requestReceived đến ${addresseeId.toString()}`);
       io.to(addresseeId.toString()).emit("friend:requestReceived", requestData);
     } else {
-      logger.warn("Socket.io instance not available, cannot emit friend request notification");
+      logger.warn("Socket.io không khả dụng, không thể gửi thông báo lời mời kết bạn");
     }
     return newRequest;
   } catch (err) {
     if (err.code === 11000) {
       throw new Error("Đã tồn tại mối quan hệ hoặc lời mời");
     }
-    logger.error("sendFriendRequest error: %o", err);
+    logger.error("Lỗi khi gửi lời mời kết bạn: %o", err);
     throw err;
   }
 }
@@ -106,7 +106,7 @@ async function sendFriendRequest(requesterId, addresseeId) {
 // Chấp nhận lời mời kết bạn
 async function acceptFriendRequest(requesterId, addresseeId) {
   try {
-    console.log("acceptFriendRequest:", { requesterId, addresseeId });
+    console.log("Chấp nhận lời mời kết bạn:", { requesterId, addresseeId });
 
     const request = await Friend.findOne({
       requester: requesterId,
@@ -120,7 +120,7 @@ async function acceptFriendRequest(requesterId, addresseeId) {
 
     request.status = "accepted";
     await request.save();
-    logger.info(`Friend request accepted: ${requesterId} -> ${addresseeId}`);
+    logger.info(`Lời mời kết bạn đã được chấp nhận: ${requesterId} -> ${addresseeId}`);
 
     if (typeof io !== "undefined" && io) {
       io.to(requesterId.toString()).emit("friend:accepted", addresseeId);
@@ -128,7 +128,7 @@ async function acceptFriendRequest(requesterId, addresseeId) {
     }
     return request;
   } catch (err) {
-    logger.error("acceptFriendRequest error: %o", err);
+    logger.error("Lỗi khi chấp nhận lời mời kết bạn: %o", err);
     throw err;
   }
 }
@@ -137,7 +137,7 @@ async function acceptFriendRequest(requesterId, addresseeId) {
 // Hủy hoặc từ chối lời mời kết bạn
 async function cancelFriendRequest(userAId, userBId) {
   try {
-    console.log("cancelFriendRequest:", userAId, userBId);
+    console.log("Hủy lời mời kết bạn:", userAId, userBId);
     const request = await Friend.findOne({
       $or: [
         { requester: userAId, addressee: userBId, status: "pending" },
@@ -149,11 +149,11 @@ async function cancelFriendRequest(userAId, userBId) {
     request.status = "canceled";
     await request.save();
 
-    logger.info(`User ${userAId} canceled/declined friend request with ${userBId}`);
+    logger.info(`Người dùng ${userAId} đã hủy/từ chối lời mời kết bạn với ${userBId}`);
 
     return request;
   } catch (err) {
-    logger.error("cancelFriendRequest error: %o", err);
+    logger.error("Lỗi khi hủy lời mời kết bạn: %o", err);
     throw err;
   }
 }
@@ -172,11 +172,11 @@ async function removeFriend(userAId, userBId) {
     friendRecord.status = "removed";
     await friendRecord.save();
 
-    logger.info(`User ${userAId} removed friend ${userBId}`);
+    logger.info(`Người dùng ${userAId} đã xóa bạn bè ${userBId}`);
 
     return true;
   } catch (err) {
-    logger.error("removeFriend error: %o", err);
+    logger.error("Lỗi khi xóa bạn bè: %o", err);
     throw err;
   }
 }
@@ -200,10 +200,10 @@ async function getFriendsList(userId) {
         : f.requester
     );
     
-    logger.info(`Fetched friends list for user ${userId}`);
+    logger.info(`Đã lấy danh sách bạn bè cho người dùng ${userId}`);
     return result;
   } catch (err) {
-    logger.error("getFriendsList error: %o", err);
+    logger.error("Lỗi khi lấy danh sách bạn bè: %o", err);
     throw err;
   }
 }
@@ -216,10 +216,10 @@ async function getPendingRequests(userId) {
       status: "pending",
     }).populate("requester", "nickname avatarUrl");
     
-    logger.info(`Fetched pending friend requests for user ${userId}`);
+    logger.info(`Đã lấy danh sách lời mời kết bạn đang chờ cho người dùng ${userId}`);
     return requests;
   } catch (err) {
-    logger.error("getPendingRequests error: %o", err);
+    logger.error("Lỗi khi lấy danh sách lời mời kết bạn đang chờ: %o", err);
     throw err;
   }
 }
@@ -236,7 +236,7 @@ async function getRelationshipStatus(userAId, userBId) {
     
     return rel ? rel.status : "none";
   } catch (err) {
-    logger.error("getRelationshipStatus error: %o", err);
+    logger.error("Lỗi khi kiểm tra trạng thái quan hệ: %o", err);
     throw err;
   }
 }
@@ -266,7 +266,7 @@ async function getRelationshipDetail(userAId, userBId) {
       addresseeId: rel.addressee,
     };
   } catch (err) {
-    logger.error("getRelationshipDetail error: %o", err);
+    logger.error("Lỗi khi lấy thông tin chi tiết quan hệ: %o", err);
     throw err;
   }
 }
@@ -282,30 +282,30 @@ async function searchUsers(nickname, userID, excludeUserId) {
     let query = { _id: { $ne: excludeUserId } };
 
     if (userID) {
-      console.log("Input userID:", userID, typeof userID, userID.length);
+      console.log("Nhập userID:", userID, typeof userID, userID.length);
       
       const trimmedUserID = userID.trim();
       
       try {
         const userIdObj = new mongoose.Types.ObjectId(trimmedUserID);
         if (userIdObj.toString() === excludeUserId.toString()) {
-          console.log("Searching self, return empty");
+          console.log("Đang tìm kiếm chính mình, trả về mảng rỗng");
           return [];
         }
         query._id = userIdObj;
-        console.log("Searching by userID:", userIdObj);
+        console.log("Đang tìm kiếm theo userID:", userIdObj);
       
       } catch (err) {
-        console.error("ObjectId creation error:", err);
+        console.error("Lỗi khi tạo ObjectId:", err);
         throw new Error("userID không hợp lệ");
       }
 
     } else if (nickname && nickname.length > 0) {
       query.nickname = { $regex: nickname, $options: "i" };
-      console.log("Searching by nickname:", nickname);
+      console.log("Đang tìm kiếm theo nickname:", nickname);
     
     } else {
-      console.log("No valid search params provided");
+      console.log("Không có tham số tìm kiếm hợp lệ");
       return [];
     }
 
@@ -328,10 +328,10 @@ async function searchUsers(nickname, userID, excludeUserId) {
     }
 
     const searchType = userID ? 'userID' : 'nickname';
-    logger.info(`Search users by ${searchType} - Found: ${usersWithFriendStatus.length}`);
+    logger.info(`Tìm kiếm người dùng theo ${searchType} - Tìm thấy: ${usersWithFriendStatus.length} người`);
     return usersWithFriendStatus;
   } catch (err) {
-    logger.error("searchUsers error: %o", err);
+    logger.error("Lỗi khi tìm kiếm người dùng: %o", err);
     throw err;
   }
 }

@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 const apiRouter = require("./routes/index");
 app.use("/api", apiRouter);
 
-// Health check endpoint cho Docker
+// Endpoint kiểm tra sức khỏe cho Docker
 app.get("/health", (req, res) => {
   res.status(200).json({ 
     status: "ok", 
@@ -24,26 +24,26 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Serve static files từ frontend build (production)
+// Phục vụ file tĩnh từ frontend build (production)
 if (process.env.NODE_ENV === "production") {
   const path = require("path");
   const frontendPath = path.join(__dirname, "../../frontend/dist");
   
-  // Serve static files
+  // Phục vụ file tĩnh
   app.use(express.static(frontendPath));
   
-  // Fallback: serve index.html cho tất cả routes không phải API
+  // Dự phòng: phục vụ index.html cho tất cả routes không phải API
   app.get("*", (req, res) => {
-    // Không serve index.html cho API routes
+    // Không phục vụ index.html cho API routes
     if (req.path.startsWith("/api")) {
       return res.status(404).json({ error: "API endpoint not found" });
     }
     res.sendFile(path.join(frontendPath, "index.html"));
   });
 } else {
-  // Development mode
+  // Chế độ phát triển
   app.get("/", (req, res) => {
-    res.send("🚀 Caro Online Backend đang hoạt động! (Development Mode)");
+    res.send("Caro Online Backend đang hoạt động! (Development Mode)");
   });
 }
 

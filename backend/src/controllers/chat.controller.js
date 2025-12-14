@@ -12,7 +12,7 @@ async function getRoomChat(req, res) {
     const messages = await chatService.getRoomMessages(roomId, 50);
     return response.success(res, { messages }, "Get room chat success");
   } catch (err) {
-    logger.error(`getRoomChat error: ${err}`);
+    logger.error(`Lỗi khi lấy chat phòng: ${err}`);
     return response.error(res, err.message, 500);
   }
 }
@@ -31,7 +31,7 @@ async function getPrivateChat(req, res) {
     
     return response.success(res, { messages, friend }, "Get private chat success");
   } catch (err) {
-    logger.error(`getPrivateChat error: ${err}`);
+    logger.error(`Lỗi khi lấy chat riêng tư: ${err}`);
     return response.error(res, err.message, 500);
   }
 }
@@ -45,7 +45,7 @@ async function markAsRead(req, res) {
     await chatService.markMessageAsRead(messageId, userId);
     return response.success(res, {}, "Message marked as read");
   } catch (err) {
-    logger.error(`markAsRead error: ${err}`);
+    logger.error(`Lỗi khi đánh dấu tin nhắn đã đọc: ${err}`);
     return response.error(res, err.message, 500);
   }
 }

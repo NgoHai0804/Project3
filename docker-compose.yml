@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: ngohai0804/CaroOnline:staging
+    image: ngohai0804/caro-online:staging
     container_name: caro-online-app
     restart: unless-stopped
     ports:
