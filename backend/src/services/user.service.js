@@ -179,6 +179,12 @@ const updateUserStatus = async (userId, status) => {
       return;
     }
 
+    // Bỏ qua bot - bot không có user status
+    const BotService = require("./bot.service");
+    if (BotService.isBot(userId)) {
+      return; // Bot không cần cập nhật status
+    }
+
     const validStatuses = ["offline", "online", "in_game", "banned"];
     if (!validStatuses.includes(status)) {
       logger.warn(`Trạng thái không hợp lệ: ${status}`);

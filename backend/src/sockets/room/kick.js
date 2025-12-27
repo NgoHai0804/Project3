@@ -86,7 +86,9 @@ async function handleKickPlayer(io, socket, data) {
         loserUsername: targetPlayer?.username
       });
       
-      if (winnerUserId) {
+      // Bỏ qua bot khi cập nhật stats
+      const BotService = require("../../services/bot.service");
+      if (winnerUserId && !BotService.isBot(winnerUserId)) {
         try {
           await UserService.updateGameStats(winnerUserId, "caro", true, false);
           log("Winner stats updated successfully (kick player)");
@@ -94,7 +96,7 @@ async function handleKickPlayer(io, socket, data) {
           log("updateGameStats error for winner when kicking player", statsError.message);
         }
       }
-      if (loserUserId) {
+      if (loserUserId && !BotService.isBot(loserUserId)) {
         try {
           await UserService.updateGameStats(loserUserId, "caro", false, false);
           log("Loser stats updated successfully (kick player)");

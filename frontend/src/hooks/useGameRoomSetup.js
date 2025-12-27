@@ -95,34 +95,52 @@ export const useGameRoomSetup = (roomId) => {
       setIsJoining(true);
 
       try {
-        const socket = socketClient.getSocket();
+        // Đảm bảo socket được khởi tạo và kết nối
+        let socket = socketClient.getSocket();
+        
+        // Nếu socket chưa tồn tại hoặc chưa kết nối, thử kết nối
         if (!socket || !socket.connected) {
-          console.log('Socket chưa kết nối, đang đợi kết nối...');
-          let retryCount = 0;
-          const maxRetries = 10;
-          const waitForSocket = () => {
-            return new Promise((resolve, reject) => {
-              const checkSocket = () => {
-                const currentSocket = socketClient.getSocket();
-                if (currentSocket && currentSocket.connected) {
-                  resolve();
-                } else if (retryCount >= maxRetries) {
-                  reject(new Error('Socket không thể kết nối'));
-                } else {
-                  retryCount++;
-                  setTimeout(checkSocket, 500);
-                }
-              };
-              checkSocket();
-            });
-          };
+          console.log('Socket chưa kết nối, đang khởi tạo kết nối...');
           
-          try {
-            await waitForSocket();
-            console.log('Socket đã kết nối, tiếp tục join room');
-          } catch (error) {
-            console.error('Lỗi khi đợi socket kết nối:', error);
-            toast.error('Không thể kết nối với server');
+          // Đảm bảo socket được connect
+          if (!socket) {
+            socketClient.connect();
+            socket = socketClient.getSocket();
+          }
+          
+          if (socket && !socket.connected) {
+            socket.connect();
+          }
+          
+          // Đợi socket kết nối với timeout
+          const maxRetries = 15;
+          const retryDelay = 400;
+          let connected = false;
+          
+          for (let i = 0; i < maxRetries; i++) {
+            socket = socketClient.getSocket();
+            if (socket && socket.connected) {
+              console.log('Socket đã kết nối thành công');
+              connected = true;
+              break;
+            }
+            
+            // Thử connect lại nếu socket tồn tại nhưng chưa connected
+            if (socket && !socket.connected) {
+              try {
+                socket.connect();
+              } catch (err) {
+                console.warn('Lỗi khi thử connect socket:', err);
+              }
+            }
+            
+            console.log(`Đang đợi socket kết nối... (${i + 1}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
+          }
+          
+          if (!connected) {
+            console.error('Socket không thể kết nối sau nhiều lần thử');
+            toast.error('Không thể kết nối với server. Vui lòng thử lại.');
             navigate('/lobby');
             setIsJoining(false);
             return;

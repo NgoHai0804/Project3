@@ -2,7 +2,11 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const RoomPlayerSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: "User", required: true }, // ID người chơi
+  userId: { 
+    type: Schema.Types.Mixed, // Cho phép ObjectId hoặc String (cho bot)
+    ref: "User", 
+    required: true 
+  }, // ID người chơi (có thể là ObjectId hoặc String cho bot)
   username: { type: String }, // Tên người chơi (để hiển thị khi disconnect)
   isHost: { type: Boolean, default: false }, // Có phải chủ phòng không (người tạo)
   isReady: { type: Boolean, default: false }, // Người chơi đã bấm "Ready" để bắt đầu chưa
@@ -15,7 +19,11 @@ const RoomPlayerSchema = new Schema({
 const RoomSchema = new Schema({
   name: { type: String }, // Tên hiển thị của phòng (đổi từ roomName theo diagram)
   passwordHash: { type: String, default: null }, // Mật khẩu phòng
-  hostId: { type: Schema.Types.ObjectId, ref: "User", index: true }, // ID chủ phòng
+  hostId: { 
+    type: Schema.Types.Mixed, // Cho phép ObjectId hoặc String (nhưng chỉ dùng ObjectId cho human)
+    ref: "User", 
+    index: true 
+  }, // ID chủ phòng (chỉ human user, không phải bot)
   maxPlayers: { type: Number, default: 2 }, // Giới hạn số người chơi trong phòng (2–4)
 
   status: {
@@ -29,6 +37,8 @@ const RoomSchema = new Schema({
   turnTimeLimit: { type: Number, default: 30 }, // Thời gian mỗi lượt đi (giây), mặc định 30s
   playerMarks: { type: Map, of: String, default: {} }, // Map userId -> mark (X hoặc O)
   firstTurn: { type: String, enum: ['X', 'O'], default: 'X' }, // Ai đi trước (X hoặc O)
+  mode: { type: String, enum: ['P2P', 'P2B'], default: 'P2P' }, // Chế độ chơi: P2P (người vs người) hoặc P2B (người vs bot)
+  botDifficulty: { type: String, enum: ['easy', 'medium', 'hard'], default: 'medium' }, // Độ khó bot (chỉ dùng khi mode = P2B)
   createdAt: { type: Date, default: Date.now }, // Thời gian tạo phòng
 });
 

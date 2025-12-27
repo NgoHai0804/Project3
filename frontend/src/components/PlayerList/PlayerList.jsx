@@ -74,11 +74,13 @@ const PlayerList = ({ playerMarks = {}, currentRoom, isHost, roomId, isPlaying =
         {players.map((player, index) => {
           const isCurrentPlayer = index === currentPlayerIndex;
           const isMe = user?.id === player.userId || user?._id === player.userId?.toString();
+          const isBot = player.userId === 'BOT_CARO_AI' || player.username === 'Bot AI' || player.userId?.toString() === 'BOT_CARO_AI';
           
           // Lấy ELO: nếu là người dùng hiện tại thì lấy từ user store, nếu không thì từ dữ liệu player (nếu có)
-          const eloScore = isMe 
+          // Bot không có ELO
+          const eloScore = isBot ? null : (isMe 
             ? getEloScore(user) 
-            : (player.elo || player.score || null);
+            : (player.elo || player.score || null));
           
           return (
             <div
@@ -136,7 +138,12 @@ const PlayerList = ({ playerMarks = {}, currentRoom, isHost, roomId, isPlaying =
                     `}>
                       {player.nickname || player.username || 'Unknown'}
                     </p>
-                    {isMe && (
+                    {isBot && (
+                      <span className="px-1 py-0.5 text-[10px] sm:text-xs font-medium text-purple-700 bg-purple-100 rounded-md flex-shrink-0">
+                        Bot
+                      </span>
+                    )}
+                    {isMe && !isBot && (
                       <span className="px-1 py-0.5 text-[10px] sm:text-xs font-medium text-green-700 bg-green-100 rounded-md flex-shrink-0">
                         Bạn
                       </span>
@@ -153,8 +160,8 @@ const PlayerList = ({ playerMarks = {}, currentRoom, isHost, roomId, isPlaying =
               </div>
               {/* Nút đuổi và ký hiệu game */}
               <div className="flex items-center gap-1.5 px-1.5 sm:px-2 flex-shrink-0">
-                {/* Nút đuổi - chỉ hiển thị cho chủ phòng, không phải chính mình và chưa bắt đầu game */}
-                {isHost && !isMe && roomId && !isPlaying && (
+                {/* Nút đuổi - chỉ hiển thị cho chủ phòng, không phải chính mình, không phải bot và chưa bắt đầu game */}
+                {isHost && !isMe && !isBot && roomId && !isPlaying && (
                   <button
                     onClick={() => handleKickPlayer(player.userId)}
                     className="

@@ -3,6 +3,7 @@
 
 const RoomService = require("../../services/room.service");
 const UserService = require("../../services/user.service");
+const P2BGameService = require("../../services/p2bGame.service");
 const { getGameState, roomGames } = require("../game/state");
 const { cleanupMoveLock } = require("../game/move");
 const { cleanupPingTracking, cleanupAllPingTracking } = require("./ping");
@@ -26,11 +27,35 @@ async function handleLeaveRoom(io, socket, data) {
       return;
     }
 
+    // Tách biệt logic P2B và P2P
+    const isP2BRoom = P2BGameService.isP2BRoom(roomBefore);
+    
     // Nếu đang chơi, tự động kết thúc game với kết quả là người còn lại thắng
     if (roomBefore.status === "playing") {
-      log("Người chơi rời phòng khi đang chơi - tự động đầu hàng", { roomId: roomIdStr, userId, username });
+      log("Người chơi rời phòng khi đang chơi - tự động đầu hàng", { roomId: roomIdStr, userId, username, isP2BRoom });
       
-      // Tìm người chơi còn lại (người thắng)
+      // P2B: Nếu human player rời, xóa luôn phòng (không cần kết thúc game)
+      if (isP2BRoom) {
+        const BotService = require("../../services/bot.service");
+        if (!BotService.isBot(userId)) {
+          // Human player rời P2B room -> xóa phòng ngay
+          await RoomService.leaveRoom({ roomId: roomIdStr, userId });
+          socketToRoom.delete(socket.id);
+          socket.leave(roomIdStr);
+          cleanupPingTracking(roomIdStr, userId.toString());
+          socket.emit("leave_success", { 
+            message: "Bạn đã rời phòng",
+            timestamp: new Date().toISOString()
+          });
+          io.to(roomIdStr).emit("room_deleted", {
+            message: "Phòng đã bị xóa vì người chơi rời",
+            timestamp: new Date().toISOString()
+          });
+          return;
+        }
+      }
+      
+      // P2P: Tìm người chơi còn lại (người thắng)
       const winner = roomBefore.players.find(p => p.userId.toString() !== userId.toString());
       const winnerNickname = winner?.nickname || winner?.username || "Đối thủ";
       
@@ -64,7 +89,9 @@ async function handleLeaveRoom(io, socket, data) {
           loserUsername: username
         });
         
-        if (winnerUserId) {
+        // Bỏ qua bot khi cập nhật stats
+        const BotService = require("../../services/bot.service");
+        if (winnerUserId && !BotService.isBot(winnerUserId)) {
           try {
             await UserService.updateGameStats(winnerUserId, "caro", true, false);
             log("Winner stats updated successfully (leave room)");
@@ -72,7 +99,7 @@ async function handleLeaveRoom(io, socket, data) {
             log("updateGameStats error for winner when leaving room", statsError.message);
           }
         }
-        if (loserUserId) {
+        if (loserUserId && !BotService.isBot(loserUserId)) {
           try {
             await UserService.updateGameStats(loserUserId, "caro", false, false);
             log("Loser stats updated successfully (leave room)");

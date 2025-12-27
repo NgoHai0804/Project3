@@ -14,12 +14,14 @@ async function createRoom(req, res) {
       return response.success(res, existingRoom, "Bạn đang ở trong phòng này", 200);
     }
     
-    const { name, password, turnTimeLimit } = req.body;
+    const { name, password, turnTimeLimit, mode, botDifficulty } = req.body;
     const room = await RoomService.createRoom({
       name,
       password,
       maxPlayers: 2,
       turnTimeLimit,
+      mode: mode || 'P2P',
+      botDifficulty: botDifficulty || 'medium',
       hostId: userId,
       hostUsername: req.user.username || req.user.nickname,
     });

@@ -170,8 +170,10 @@ async function handleRespondDraw(io, socket, data) {
       });
 
       // Cập nhật gameStats cho cả 2 người chơi (hòa) - tách riêng để đảm bảo cả 2 đều được cập nhật
+      // Bỏ qua bot khi cập nhật stats
+      const BotService = require("../../services/bot.service");
       for (const player of room.players) {
-        if (player.userId) {
+        if (player.userId && !BotService.isBot(player.userId)) {
           try {
             log("Updating player stats (draw accepted)", { playerId: player.userId.toString() });
             await UserService.updateGameStats(player.userId, "caro", false, true);

@@ -95,9 +95,11 @@ async function handleSurrender(io, socket, data) {
     });
 
     // Cập nhật gameStats cho người thắng và thua (đầu hàng) - ĐẢM BẢO CẢ 2 ĐỀU ĐƯỢC CẬP NHẬT
+    // Bỏ qua bot khi cập nhật stats
+    const BotService = require("../../services/bot.service");
     // Cập nhật stats cho người thắng TRƯỚC
     let winnerUpdated = false;
-    if (winnerUserId) {
+    if (winnerUserId && !BotService.isBot(winnerUserId)) {
       try {
         log("Updating winner stats (surrender)", { winnerId: winnerUserId });
         await UserService.updateGameStats(winnerUserId, "caro", true, false);
@@ -110,13 +112,15 @@ async function handleSurrender(io, socket, data) {
           stack: statsError.stack 
         });
       }
+    } else if (winnerUserId) {
+      log("Skipping winner stats update (bot)", { winnerId: winnerUserId });
     } else {
       log("ERROR: winnerUserId is null/undefined, cannot update winner stats");
     }
     
     // Cập nhật stats cho người thua (đầu hàng) - LUÔN cập nhật, tách riêng để đảm bảo luôn chạy
     let loserUpdated = false;
-    if (loserUserId) {
+    if (loserUserId && !BotService.isBot(loserUserId)) {
       try {
         log("Updating loser stats (surrender)", { loserId: loserUserId });
         await UserService.updateGameStats(loserUserId, "caro", false, false);
@@ -129,6 +133,8 @@ async function handleSurrender(io, socket, data) {
           stack: statsError.stack 
         });
       }
+    } else if (loserUserId) {
+      log("Skipping loser stats update (bot)", { loserId: loserUserId });
     } else {
       log("ERROR: loserUserId is null/undefined, cannot update loser stats");
     }

@@ -12,6 +12,8 @@ const CreateRoom = () => {
     name: '',
     password: '',
     turnTimeLimit: 30,
+    mode: 'P2P', // P2P hoặc P2B
+    botDifficulty: 'medium', // easy, medium, hard
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -69,8 +71,12 @@ const CreateRoom = () => {
       }
 
       const response = await roomApi.createRoom({
-        ...formData,
-        maxPlayers: 2
+        name: formData.name,
+        password: formData.password,
+        turnTimeLimit: formData.turnTimeLimit,
+        maxPlayers: 2,
+        mode: formData.mode,
+        botDifficulty: formData.mode === 'P2B' ? formData.botDifficulty : undefined,
       });
       const room = response.room || response.data || response;
       const roomId = room._id || room.id;
@@ -158,6 +164,46 @@ const CreateRoom = () => {
                 placeholder="Để trống nếu không muốn đặt mật khẩu"
               />
             </div>
+
+            {/* Game Mode */}
+            <div>
+              <label htmlFor="mode" className="block text-sm font-medium text-gray-700 mb-2">
+                Chế độ chơi
+              </label>
+              <select
+                id="mode"
+                name="mode"
+                value={formData.mode}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="P2P">Người vs Người</option>
+                <option value="P2B">Người vs Bot</option>
+              </select>
+            </div>
+
+            {/* Bot Difficulty (chỉ hiện khi chọn P2B) */}
+            {formData.mode === 'P2B' && (
+              <div>
+                <label htmlFor="botDifficulty" className="block text-sm font-medium text-gray-700 mb-2">
+                  Độ khó Bot
+                </label>
+                <select
+                  id="botDifficulty"
+                  name="botDifficulty"
+                  value={formData.botDifficulty}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="easy">Dễ</option>
+                  <option value="medium">Trung bình</option>
+                  <option value="hard">Khó</option>
+                </select>
+                <p className="mt-1 text-sm text-gray-500">
+                  Bot sẽ tự động chơi khi đến lượt. Độ khó càng cao, bot càng thông minh.
+                </p>
+              </div>
+            )}
 
             {/* Turn Time Limit */}
             <div>

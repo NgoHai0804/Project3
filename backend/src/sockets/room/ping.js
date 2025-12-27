@@ -21,6 +21,12 @@ async function handlePingRoom(io, socket, data) {
   const roomIdStr = roomId?.toString();
 
   try {
+    // Bỏ qua bot - bot không gửi ping
+    const BotService = require("../../services/bot.service");
+    if (BotService.isBot(userId)) {
+      return; // Bot không cần ping
+    }
+
     const room = await RoomService.getRoomById(roomIdStr);
     if (!room || room.status !== "playing") {
       return; // Không phải đang chơi, không cần ping
@@ -40,9 +46,9 @@ async function handlePingRoom(io, socket, data) {
       clearTimeout(existingTimeout);
     }
 
-    // Bắt đầu timeout mới (30 giây)
+    // Bắt đầu timeout mới (30 giây) - chỉ cho human players
     const player = room.players.find(p => p.userId.toString() === userId);
-    if (player) {
+    if (player && !BotService.isBotPlayer(player)) {
       startPingTimeout(io, roomIdStr, userId, player.username);
     }
 
@@ -63,6 +69,13 @@ async function handlePingRoom(io, socket, data) {
 /** ----------------- AUTO REMOVE PLAYER ON TIMEOUT ----------------- */
 async function autoRemovePlayerOnTimeout(io, roomIdStr, userId, username) {
   try {
+    // Bỏ qua bot - bot không bị timeout
+    const BotService = require("../../services/bot.service");
+    if (BotService.isBot(userId)) {
+      log("Skipping timeout for bot", { roomId: roomIdStr, userId });
+      return;
+    }
+
     const room = await RoomService.getRoomById(roomIdStr);
     if (!room || room.status !== "playing") {
       return;
@@ -70,6 +83,12 @@ async function autoRemovePlayerOnTimeout(io, roomIdStr, userId, username) {
 
     const player = room.players.find(p => p.userId.toString() === userId.toString());
     if (!player) {
+      return;
+    }
+
+    // Kiểm tra lại xem có phải bot không
+    if (BotService.isBotPlayer(player)) {
+      log("Skipping timeout for bot player", { roomId: roomIdStr, userId });
       return;
     }
 
@@ -98,6 +117,8 @@ async function autoRemovePlayerOnTimeout(io, roomIdStr, userId, username) {
       });
 
       // Cập nhật gameStats cho người thắng và thua (timeout) - tách riêng để đảm bảo cả 2 đều được cập nhật
+      // Bỏ qua bot khi cập nhật stats
+      const BotService = require("../../services/bot.service");
       const winnerUserId = winner?.userId ? winner.userId.toString() : null;
       const loserUserId = userId ? userId.toString() : null;
       
@@ -108,7 +129,7 @@ async function autoRemovePlayerOnTimeout(io, roomIdStr, userId, username) {
         loserUsername: username
       });
       
-      if (winnerUserId) {
+      if (winnerUserId && !BotService.isBot(winnerUserId)) {
         try {
           await UserService.updateGameStats(winnerUserId, "caro", true, false);
           log("Winner stats updated successfully (ping timeout)");
@@ -116,7 +137,7 @@ async function autoRemovePlayerOnTimeout(io, roomIdStr, userId, username) {
           log("updateGameStats error for winner on timeout", statsError.message);
         }
       }
-      if (loserUserId) {
+      if (loserUserId && !BotService.isBot(loserUserId)) {
         try {
           await UserService.updateGameStats(loserUserId, "caro", false, false);
           log("Loser stats updated successfully (ping timeout)");
@@ -176,6 +197,12 @@ async function autoRemovePlayerOnTimeout(io, roomIdStr, userId, username) {
 
 /** ----------------- START PING TIMEOUT ----------------- */
 function startPingTimeout(io, roomIdStr, userId, username) {
+  // Bỏ qua bot - bot không cần ping timeout
+  const BotService = require("../../services/bot.service");
+  if (BotService.isBot(userId)) {
+    return; // Bot không cần ping timeout
+  }
+
   const timeoutKey = `${roomIdStr}_${userId}`;
   
   // Xóa timeout cũ nếu có
@@ -196,6 +223,12 @@ function startPingTimeout(io, roomIdStr, userId, username) {
       // Kiểm tra xem player có còn trong phòng không
       const player = room.players.find(p => p.userId.toString() === userId);
       if (!player) {
+        roomPingTimeouts.delete(timeoutKey);
+        return;
+      }
+
+      // Bỏ qua bot - bot không cần ping timeout
+      if (BotService.isBotPlayer(player)) {
         roomPingTimeouts.delete(timeoutKey);
         return;
       }

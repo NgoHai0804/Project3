@@ -133,7 +133,9 @@ async function handleDisconnect(io, socket) {
           loserUsername: username
         });
         
-        if (winnerUserId) {
+        // Bỏ qua bot khi cập nhật stats
+        const BotService = require("../../services/bot.service");
+        if (winnerUserId && !BotService.isBot(winnerUserId)) {
           try {
             await UserService.updateGameStats(winnerUserId, "caro", true, false);
             log("Winner stats updated successfully (disconnect)");
@@ -141,7 +143,7 @@ async function handleDisconnect(io, socket) {
             log("updateGameStats error for winner on disconnect", statsError.message);
           }
         }
-        if (loserUserId) {
+        if (loserUserId && !BotService.isBot(loserUserId)) {
           try {
             await UserService.updateGameStats(loserUserId, "caro", false, false);
             log("Loser stats updated successfully (disconnect)");

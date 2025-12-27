@@ -90,21 +90,48 @@ async function getUserGameHistory(userId, options = {}) {
     const limit = options.limit || 20;
     const skip = options.skip || 0;
 
+    const BotService = require("./bot.service");
     const games = await GameCaro.find({
       $or: [
         { playerX: userId },
         { playerO: userId }
       ]
     })
-      .populate('playerX', 'nickname avatarUrl')
-      .populate('playerO', 'nickname avatarUrl')
-      .populate('winnerId', 'nickname avatarUrl')
       .sort({ endedAt: -1 })
       .limit(limit)
       .skip(skip)
       .lean();
-
-    return games;
+    
+    // Xử lý populate và bot info sau khi query
+    const processedGames = games.map(game => {
+      // Populate playerX (chỉ nếu là ObjectId)
+      if (game.playerX && typeof game.playerX === 'object' && game.playerX._id) {
+        // Đã được populate
+      } else if (game.playerX && BotService.isBot(game.playerX)) {
+        game.playerX = { _id: BotService.BOT_ID, nickname: BotService.BOT_NICKNAME, avatarUrl: null };
+      } else if (game.playerX) {
+        // Cần populate, nhưng đã dùng lean() nên không populate được
+        // Có thể query riêng nếu cần
+      }
+      
+      // Populate playerO (chỉ nếu là ObjectId)
+      if (game.playerO && typeof game.playerO === 'object' && game.playerO._id) {
+        // Đã được populate
+      } else if (game.playerO && BotService.isBot(game.playerO)) {
+        game.playerO = { _id: BotService.BOT_ID, nickname: BotService.BOT_NICKNAME, avatarUrl: null };
+      }
+      
+      // Populate winnerId (chỉ nếu là ObjectId)
+      if (game.winnerId && typeof game.winnerId === 'object' && game.winnerId._id) {
+        // Đã được populate
+      } else if (game.winnerId && BotService.isBot(game.winnerId)) {
+        game.winnerId = { _id: BotService.BOT_ID, nickname: BotService.BOT_NICKNAME, avatarUrl: null };
+      }
+      
+      return game;
+    });
+    
+    return processedGames;
   } catch (err) {
     logger.error("Lỗi khi lấy lịch sử game của người dùng: %o", err);
     throw err;

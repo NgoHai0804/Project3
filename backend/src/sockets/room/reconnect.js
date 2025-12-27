@@ -80,8 +80,12 @@ async function handleCheckAndReconnect(io, socket) {
             roomPlayerPings.set(roomIdStr, new Map());
           }
           const pingMap = roomPlayerPings.get(roomIdStr);
-          pingMap.set(userId.toString(), Date.now());
-          startPingTimeout(io, roomIdStr, userId.toString(), username);
+          const BotService = require("../../services/bot.service");
+          // Bỏ qua bot - bot không cần ping tracking
+          if (!BotService.isBot(userId.toString())) {
+            pingMap.set(userId.toString(), Date.now());
+            startPingTimeout(io, roomIdStr, userId.toString(), username);
+          }
         }
       }
 

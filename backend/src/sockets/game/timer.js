@@ -64,6 +64,8 @@ function startTurnTimer(io, roomIdStr, turnTimeLimit) {
       });
 
       // Cập nhật thống kê game cho cả người thắng và người thua
+      // Bỏ qua bot khi cập nhật stats
+      const BotService = require("../../services/bot.service");
       const winnerUserId = winner?.userId ? winner.userId.toString() : null;
       const loserUserId = currentPlayer.userId ? currentPlayer.userId.toString() : null;
       
@@ -74,7 +76,7 @@ function startTurnTimer(io, roomIdStr, turnTimeLimit) {
         loserUsername: currentPlayer?.username
       });
       
-      if (winnerUserId) {
+      if (winnerUserId && !BotService.isBot(winnerUserId)) {
         try {
           await UserService.updateGameStats(winnerUserId, "caro", true, false);
           log("Winner stats updated successfully (turn timeout)");
@@ -82,7 +84,7 @@ function startTurnTimer(io, roomIdStr, turnTimeLimit) {
           log("updateGameStats error for winner on turn timeout", statsError.message);
         }
       }
-      if (loserUserId) {
+      if (loserUserId && !BotService.isBot(loserUserId)) {
         try {
           await UserService.updateGameStats(loserUserId, "caro", false, false);
           log("Loser stats updated successfully (turn timeout)");

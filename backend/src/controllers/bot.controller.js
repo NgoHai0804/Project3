@@ -1,7 +1,7 @@
 // bot.controller.js
 // Controller xử lý request liên quan đến AI Bot (tính nước đi cho bot)
 const response = require("../utils/response");
-const aiBotService = require("../services/aiBot.service");
+const botMoveService = require("../services/botMove.service");
 const logger = require("../utils/logger");
 
 // Tính toán và trả về nước đi tốt nhất cho bot dựa trên bàn cờ hiện tại và độ khó
@@ -13,12 +13,39 @@ async function getBotMove(req, res) {
       return response.error(res, "Board and botMark are required", 400);
     }
 
-    const move = aiBotService.getBestMove(board, botMark, difficulty, lastMove);
+    // Validate board
+    if (!Array.isArray(board) || board.length === 0) {
+      return response.error(res, "Board phải là mảng 2D hợp lệ", 400);
+    }
 
-    return response.success(res, { move, difficulty }, "Bot move generated");
+    // Validate botMark
+    if (botMark !== 'X' && botMark !== 'O') {
+      return response.error(res, "botMark phải là 'X' hoặc 'O'", 400);
+    }
+
+    // Validate difficulty
+    if (difficulty && !['easy', 'medium', 'hard'].includes(difficulty)) {
+      return response.error(res, "difficulty phải là 'easy', 'medium' hoặc 'hard'", 400);
+    }
+
+    // Tính toán nước đi
+    const move = botMoveService.calculateBotMove(board, botMark, difficulty, lastMove);
+
+    if (!move || move.x === undefined || move.y === undefined) {
+      return response.error(res, "Không thể tính toán nước đi", 500);
+    }
+
+    return response.success(res, { 
+      x: move.x, 
+      y: move.y,
+      score: move.score,
+      info: move.info,
+      difficulty 
+    }, "Bot move generated");
   } catch (err) {
-    logger.error(`Lỗi khi tính nước đi bot: ${err}`);
-    return response.error(res, err.message, 500);
+    logger.error(`Lỗi khi tính nước đi bot: ${err.message}`);
+    logger.error(`Stack: ${err.stack}`);
+    return response.error(res, err.message || "Lỗi khi tính nước đi bot", 500);
   }
 }
 

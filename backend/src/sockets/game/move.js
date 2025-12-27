@@ -8,6 +8,7 @@ const { checkWinner } = require("../../utils/checkWinner");
 const { getGameState, emitGameStateSync, roomGames, initBoard } = require("./state");
 const { startTurnTimer, stopTurnTimer } = require("./timer");
 const { log, updatePlayersStatusToOnline } = require("./helpers");
+const { triggerBotMoveIfNeeded } = require("./bot");
 
 /** Map để lock việc xử lý move cho mỗi phòng - tránh race condition */
 // Format: roomId -> boolean (true = đang xử lý move)
@@ -144,8 +145,8 @@ async function handleMakeMove(io, socket, data) {
 
     io.to(roomIdStr).emit("move_made", lastMove);
 
-    // Đợi một chút để đảm bảo client nhận được move_made trước
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // Đợi một chút để đảm bảo client nhận được move_made trước (giảm delay để nhanh hơn)
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     if (isWinner) {
       // Có người thắng
@@ -178,7 +179,9 @@ async function handleMakeMove(io, socket, data) {
       });
 
       // Cập nhật gameStats cho người thắng và thua - tách riêng để đảm bảo cả 2 đều được cập nhật
-      if (userId) {
+      // Bỏ qua bot khi cập nhật stats
+      const BotService = require("../../services/bot.service");
+      if (userId && !BotService.isBot(userId)) {
         try {
           log("Updating winner stats", { winnerId: userId.toString() });
           await UserService.updateGameStats(userId, "caro", true, false);
@@ -188,7 +191,7 @@ async function handleMakeMove(io, socket, data) {
           log("updateGameStats error stack", statsError.stack);
         }
       }
-      if (loserUserId) {
+      if (loserUserId && !BotService.isBot(loserUserId)) {
         try {
           log("Updating loser stats", { loserId: loserUserId });
           await UserService.updateGameStats(loserUserId, "caro", false, false);
@@ -197,7 +200,7 @@ async function handleMakeMove(io, socket, data) {
           log("updateGameStats error for loser", statsError.message);
           log("updateGameStats error stack", statsError.stack);
         }
-      } else {
+      } else if (!loserUserId) {
         log("WARNING: loserUserId is null/undefined, cannot update loser stats");
         log("Room players:", room.players.map(p => ({ userId: p.userId?.toString(), username: p.username })));
       }
@@ -205,12 +208,14 @@ async function handleMakeMove(io, socket, data) {
       // Lưu lịch sử chơi vào database
       try {
         const boardSize = game.board.length;
+        const roomForMode = await RoomService.getRoomById(roomIdStr);
+        const gameMode = roomForMode?.mode || 'P2P';
         await GameCaroService.saveGameHistory({
           roomId: roomIdStr,
           gameState: game,
           result: gameResult,
           boardSize: boardSize,
-          mode: 'P2P'
+          mode: gameMode
         });
         log("Game history saved successfully", { roomId: roomIdStr });
       } catch (historyError) {
@@ -268,8 +273,10 @@ async function handleMakeMove(io, socket, data) {
       });
 
       // Cập nhật gameStats cho cả 2 người chơi (hòa) - tách riêng để đảm bảo cả 2 đều được cập nhật
+      // Bỏ qua bot khi cập nhật stats
+      const BotService = require("../../services/bot.service");
       for (const player of room.players) {
-        if (player.userId) {
+        if (player.userId && !BotService.isBot(player.userId)) {
           try {
             await UserService.updateGameStats(player.userId, "caro", false, true);
           } catch (statsError) {
@@ -281,12 +288,14 @@ async function handleMakeMove(io, socket, data) {
       // Lưu lịch sử chơi vào database
       try {
         const boardSize = game.board.length;
+        const roomForMode = await RoomService.getRoomById(roomIdStr);
+        const gameMode = roomForMode?.mode || 'P2P';
         await GameCaroService.saveGameHistory({
           roomId: roomIdStr,
           gameState: game,
           result: gameResult,
           boardSize: boardSize,
-          mode: 'P2P'
+          mode: gameMode
         });
         log("Game history saved successfully (draw)", { roomId: roomIdStr });
       } catch (historyError) {
@@ -353,6 +362,18 @@ async function handleMakeMove(io, socket, data) {
     roomMoveLocks.delete(roomIdStr);
 
     log("Move made successfully", { roomId: roomIdStr, x, y, mark, nextTurn: game.turn });
+    
+    // Trigger bot move nếu đến lượt bot (chỉ khi game chưa kết thúc và không phải bot move)
+    const BotService = require("../../services/bot.service");
+    const isBotMove = BotService.isBot(userId, username);
+    if (!isWinner && !isDraw && !isBotMove) {
+      // Trigger ngay lập tức, không await để không block response
+      setImmediate(() => {
+        triggerBotMoveIfNeeded(io, roomIdStr).catch(err => {
+          log("Error in triggerBotMoveIfNeeded", err.message);
+        });
+      });
+    }
 
   } catch (err) {
     log("make_move error", err.message);

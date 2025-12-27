@@ -3,32 +3,7 @@ const Room = require("../models/room.model");
 const User = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const { v4: uuidv4 } = require("uuid");
-
-// Lấy điểm ELO của user
-async function getUserElo(userId) {
-  try {
-    const user = await User.findById(userId);
-    if (!user || !user.gameStats || user.gameStats.length === 0) {
-      return 1000; // Điểm ELO mặc định
-    }
-    const caroStats = user.gameStats.find(s => s.gameId === 'caro') || user.gameStats[0];
-    return caroStats?.score || 1000;
-  } catch (error) {
-    console.error('Lỗi khi lấy điểm ELO của người dùng:', error);
-    return 1000; // Điểm ELO mặc định khi có lỗi
-  }
-}
-
-// Lấy nickname của user (dùng username nếu không có)
-async function getUserNickname(userId) {
-  try {
-    const user = await User.findById(userId).select('nickname username');
-    return user?.nickname || user?.username || 'Unknown';
-  } catch (error) {
-    console.error('Lỗi khi lấy nickname của người dùng:', error);
-    return 'Unknown';
-  }
-}
+const BotService = require("./bot.service");
 
 // Chuyển room sang JSON và thêm thông tin ELO, nickname, avatarUrl
 async function toJSON(room) {
@@ -51,15 +26,21 @@ async function toJSON(room) {
   if (roomObj.players && roomObj.players.length > 0) {
     const playersWithElo = await Promise.all(
       roomObj.players.map(async (player) => {
-        const elo = await getUserElo(player.userId);
-        const nickname = await getUserNickname(player.userId);
-        let avatarUrl = null;
-        try {
-          const user = await User.findById(player.userId).select('avatarUrl');
-          avatarUrl = user?.avatarUrl || null;
-        } catch (error) {
-          console.error('Lỗi khi lấy avatarUrl của người dùng:', error);
+        // Nếu là bot, trả về thông tin bot không cần query database
+        if (BotService.isBotPlayer(player)) {
+          const { username, ...playerWithoutUsername } = player;
+          const botInfo = BotService.getBotDisplayInfo();
+          return {
+            ...playerWithoutUsername,
+            ...botInfo,
+          };
         }
+        
+        // Nếu là user thật, query database
+        const elo = await BotService.getUserElo(player.userId);
+        const nickname = await BotService.getUserNickname(player.userId);
+        const avatarUrl = await BotService.getUserAvatarUrl(player.userId);
+        
         // Loại bỏ username khỏi player object
         const { username, ...playerWithoutUsername } = player;
         return {
@@ -77,11 +58,34 @@ async function toJSON(room) {
   return roomObj;
 }
 // Tạo phòng chơi mới
-async function createRoom({ name, password, maxPlayers, hostId, hostUsername, turnTimeLimit, firstTurn }) {
+async function createRoom({ name, password, maxPlayers, hostId, hostUsername, turnTimeLimit, firstTurn, mode, botDifficulty }) {
   const passwordHash = password ? await bcrypt.hash(password, 10) : null;
   const defaultFirstTurn = firstTurn || 'X';
-  const defaultPlayerMarks = {};
-  defaultPlayerMarks[hostId.toString()] = 'X';
+  const gameMode = mode || 'P2P';
+  const botDiff = botDifficulty || 'medium';
+  
+  const players = [
+    {
+      userId: hostId,
+      username: hostUsername,
+      isHost: true,
+      isReady: false,
+      sessionId: uuidv4(),
+      isDisconnected: false,
+    },
+  ];
+  
+  // Tạo player marks tùy theo mode
+  let defaultPlayerMarks = {};
+  if (gameMode === 'P2B') {
+    // Nếu là chế độ chơi với bot (P2B), thêm bot vào players
+    players.push(BotService.getBotPlayerObject());
+    // Gán marks cho bot và host
+    defaultPlayerMarks = BotService.createBotPlayerMarks(hostId, defaultFirstTurn);
+  } else {
+    // P2P mode: chỉ gán mark cho host
+    defaultPlayerMarks[hostId.toString()] = 'X';
+  }
   
   const room = await Room.create({
     name: name || `Phòng #${Math.floor(Math.random() * 10000)}`,
@@ -91,19 +95,12 @@ async function createRoom({ name, password, maxPlayers, hostId, hostUsername, tu
     turnTimeLimit: turnTimeLimit || 30,
     firstTurn: defaultFirstTurn,
     playerMarks: defaultPlayerMarks,
-    players: [
-      {
-        userId: hostId,
-        username: hostUsername,
-        isHost: true,
-        isReady: false,
-        sessionId: uuidv4(),
-        isDisconnected: false,
-      },
-    ],
+    mode: gameMode,
+    botDifficulty: gameMode === 'P2B' ? botDiff : undefined,
+    players: players,
     status: "waiting",
   });
-  console.log(`Đã tạo phòng mới với ID: ${room._id}, playerMarks:`, defaultPlayerMarks);
+  console.log(`Đã tạo phòng mới với ID: ${room._id}, mode: ${gameMode}, playerMarks:`, defaultPlayerMarks);
   return toJSON(room);
 }
 
@@ -211,12 +208,27 @@ async function leaveRoom({ roomId, userId }) {
   const playerIndex = room.players.findIndex(p => p.userId.toString() === userId.toString());
   if (playerIndex === -1) throw new Error("Bạn không ở trong phòng này");
   
+  // Nếu là phòng bot (P2B), xóa luôn phòng khi user rời
+  if (room.mode === 'P2B') {
+    await Room.findByIdAndDelete(room._id);
+    return null;
+  }
+  
   const isHost = room.players[playerIndex].isHost;
   room.players.splice(playerIndex, 1);
   
   if (isHost && room.players.length > 0) {
-    room.players[0].isHost = true;
-    room.hostId = room.players[0].userId;
+    // Tìm human player đầu tiên (không phải bot) để làm host
+    const humanPlayer = BotService.findFirstHumanPlayer(room.players);
+    
+    if (humanPlayer) {
+      humanPlayer.isHost = true;
+      room.hostId = humanPlayer.userId;
+    } else {
+      // Nếu không có human player nào, xóa phòng
+      await Room.findByIdAndDelete(room._id);
+      return null;
+    }
   }
   
   if (room.players.length === 0) {
@@ -247,6 +259,12 @@ async function updateRoom(roomId, data) {
   }
   if (data.players !== undefined) {
     room.players = data.players;
+    // Đảm bảo bot luôn sẵn sàng
+    room.players.forEach(player => {
+      if (BotService.isBotPlayer(player)) {
+        player.isReady = true;
+      }
+    });
   }
   
   await room.save();
@@ -264,7 +282,20 @@ async function toggleReady({ roomId, isReady, userId }) {
     throw new Error("Chủ phòng không cần sẵn sàng");
   }
   
+  // Bot luôn sẵn sàng, không cho phép thay đổi
+  if (BotService.isBotPlayer(player)) {
+    throw new Error("Bot luôn sẵn sàng");
+  }
+  
   player.isReady = isReady;
+  
+  // Đảm bảo bot luôn có isReady = true
+  room.players.forEach(p => {
+    if (BotService.isBotPlayer(p)) {
+      p.isReady = true;
+    }
+  });
+  
   const nonHostPlayers = room.players.filter(p => !p.isHost && !p.isDisconnected);
   const allNonHostReady = nonHostPlayers.length > 0 && nonHostPlayers.every(p => p.isReady);
   
@@ -280,8 +311,13 @@ async function endGame({ roomId, result }) {
   room.status = "waiting";
   if (result) room.result = result;
   
+  // Reset ready status cho tất cả players, nhưng bot luôn sẵn sàng
   room.players.forEach(player => {
-    player.isReady = false;
+    if (BotService.isBotPlayer(player)) {
+      player.isReady = true; // Bot luôn sẵn sàng
+    } else {
+      player.isReady = false;
+    }
   });
   
   await room.save();
@@ -430,12 +466,27 @@ async function removeDisconnectedPlayer({ roomId, userId }) {
   const playerIndex = room.players.findIndex(p => p.userId.toString() === userId.toString());
   if (playerIndex === -1) return toJSON(room);
   
+  // Nếu là phòng bot (P2B), xóa luôn phòng khi user bị remove
+  if (room.mode === 'P2B') {
+    await Room.findByIdAndDelete(room._id);
+    return null;
+  }
+  
   const isHost = room.players[playerIndex].isHost;
   room.players.splice(playerIndex, 1);
   
   if (isHost && room.players.length > 0) {
-    room.players[0].isHost = true;
-    room.hostId = room.players[0].userId;
+    // Tìm human player đầu tiên (không phải bot) để làm host
+    const humanPlayer = BotService.findFirstHumanPlayer(room.players);
+    
+    if (humanPlayer) {
+      humanPlayer.isHost = true;
+      room.hostId = humanPlayer.userId;
+    } else {
+      // Nếu không có human player nào, xóa phòng
+      await Room.findByIdAndDelete(room._id);
+      return null;
+    }
   }
   
   if (room.players.length === 0) {
