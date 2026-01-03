@@ -1,5 +1,5 @@
 // routes/room.routes.js
-// Định nghĩa các route liên quan đến quản lý phòng chơi
+// Routes cho phòng chơi
 const verifyToken = require("../middlewares/auth.middleware");
 const roomController = require("../controllers/room.controller");
 const express = require("express");

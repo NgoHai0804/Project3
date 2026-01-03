@@ -1,4 +1,4 @@
-// bot.service.js - xử lý logic liên quan đến Bot
+// bot.service.js
 
 const { v4: uuidv4 } = require("uuid");
 

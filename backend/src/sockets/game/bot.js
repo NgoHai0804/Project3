@@ -1,12 +1,11 @@
 // bot.js
-// Xử lý logic bot tự động chơi caro
 
 const botMoveService = require("../../services/botMove.service");
 const { getGameState, roomGames } = require("./state");
 const { log } = require("./helpers");
 const BotService = require("../../services/bot.service");
 
-// Lazy load handleMakeMove để tránh circular dependency
+// Lazy load handleMakeMove
 let handleMakeMove;
 function getHandleMakeMove() {
   if (!handleMakeMove) {
@@ -16,12 +15,12 @@ function getHandleMakeMove() {
   return handleMakeMove;
 }
 
-// Import constants từ bot.service để tương thích với code cũ
+// Import bot constants
 const BOT_ID = BotService.BOT_ID;
 const BOT_USERNAME = BotService.BOT_USERNAME;
 const BOT_NICKNAME = BotService.BOT_NICKNAME;
 
-// Lazy load RoomService để tránh circular dependency
+// Lazy load RoomService
 let RoomService;
 function getRoomService() {
   if (!RoomService) {
@@ -153,7 +152,7 @@ async function makeBotMove(io, roomId) {
     
     const game = getGameState(roomIdStr);
     
-    // Sử dụng P2BGameService để tính toán nước đi (tách biệt logic P2B)
+    // Tính toán nước đi bằng P2BGameService
     const P2BGameService = require("../../services/p2bGame.service");
     
     if (!P2BGameService.isP2BRoom(room)) {
@@ -178,9 +177,7 @@ async function makeBotMove(io, roomId) {
       return;
     }
     
-    // Bot đánh ngay lập tức (không delay)
-    // Tạo một fake socket object để gọi handleMakeMove
-    // Bot move sẽ được xử lý như một move bình thường
+    // Tạo fake socket cho bot
     const fakeSocket = {
       user: {
         _id: BOT_ID,
@@ -191,8 +188,7 @@ async function makeBotMove(io, roomId) {
       emit: () => {} // Bot không cần emit gì
     };
     
-    // Gọi handleMakeMove với bot move
-    // Lấy botMark để log (nếu cần)
+    // Gọi handleMakeMove
     const BotService = require("../../services/bot.service");
     const botMark = BotService.getBotMark(room);
     log("Bot making move", { roomId: roomIdStr, x: botMove.x, y: botMove.y, botMark: botMark || 'unknown' });

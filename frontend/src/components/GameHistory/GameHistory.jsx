@@ -184,109 +184,9 @@ const GameHistory = ({ userId = null, limit = 5 }) => {
 
   return (
     <div className="space-y-4">
-      {/* Danh sách game */}
-      <div className="space-y-4">
-        {games.map((game, index) => {
-          const opponent = getOpponent(game, currentUserId);
-          const playerMark = getPlayerMark(game, currentUserId);
-          const resultText = getResultText(game, currentUserId);
-          const resultColor = getResultColor(game, currentUserId);
-          const isWin = resultText === 'Thắng';
-          const isDraw = resultText === 'Hòa';
-          
-          return (
-            <div
-              key={game._id}
-              className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 hover:shadow-md sm:hover:shadow-lg hover:border-blue-300 transition-all duration-300 overflow-hidden"
-            >
-              <div className="p-3 sm:p-4 md:p-5">
-                {/* Header: Đối thủ và kết quả */}
-                <div className="flex items-center justify-between gap-3 mb-3 sm:mb-0 sm:pb-3 sm:border-b sm:border-gray-100">
-                  {/* Thông tin đối thủ */}
-                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                    {opponent ? (
-                      <>
-                        <div className="relative flex-shrink-0">
-                          <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center overflow-hidden ring-2 ring-white shadow-sm sm:shadow-md">
-                            {opponent.avatarUrl ? (
-                              <img
-                                src={opponent.avatarUrl}
-                                alt={opponent.nickname || 'Đối thủ'}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <span className="text-white font-bold text-sm sm:text-base md:text-lg">
-                                {(opponent.nickname || 'Đ')?.[0]?.toUpperCase()}
-                              </span>
-                            )}
-                          </div>
-                          {isWin && (
-                            <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 bg-yellow-400 rounded-full flex items-center justify-center">
-                              <FaTrophy className="text-yellow-800 text-[8px] sm:text-[10px] md:text-xs" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="font-semibold text-gray-900 text-sm sm:text-base md:text-lg truncate">
-                            {opponent.nickname || 'Đối thủ'}
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="text-gray-500 text-xs sm:text-sm">Không xác định đối thủ</div>
-                    )}
-                  </div>
-                  
-                  {/* Badge kết quả */}
-                  <div className="flex-shrink-0">
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 rounded-full text-[10px] sm:text-xs md:text-sm font-semibold shadow-sm ${
-                      isWin 
-                        ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' 
-                        : isDraw
-                        ? 'bg-gradient-to-r from-gray-400 to-gray-500 text-white'
-                        : 'bg-gradient-to-r from-red-500 to-rose-600 text-white'
-                    }`}>
-                      {isWin && <FaTrophy className="text-[8px] sm:text-[10px] md:text-xs" />}
-                      <span className="whitespace-nowrap">{resultText}</span>
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Thông tin chi tiết - responsive wrap */}
-                <div className="flex items-center flex-wrap gap-2 sm:gap-3 md:gap-4 pt-3 border-t border-gray-100">
-                  {playerMark && (
-                    <div className={`
-                      w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center
-                      font-bold text-[10px] sm:text-xs md:text-sm shadow-sm sm:shadow-md transition-all flex-shrink-0
-                      ${playerMark === 'X' 
-                        ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white ring-1 sm:ring-2 ring-blue-200' 
-                        : 'bg-gradient-to-br from-red-500 to-red-600 text-white ring-1 sm:ring-2 ring-red-200'}
-                    `}>
-                      {playerMark}
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs md:text-sm text-gray-600">
-                    <FaChessBoard className="text-amber-500 flex-shrink-0 text-[10px] sm:text-xs md:text-sm" />
-                    <span className="whitespace-nowrap">{game.boardSize}×{game.boardSize}</span>
-                  </div>
-                  <div className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs md:text-sm text-gray-600">
-                    <FaChess className="text-purple-500 flex-shrink-0 text-[10px] sm:text-xs md:text-sm" />
-                    <span className="whitespace-nowrap">{game.moves?.length || 0} nước đi</span>
-                  </div>
-                  <div className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs md:text-sm text-gray-600 min-w-0">
-                    <FaCalendarAlt className="text-blue-500 flex-shrink-0 text-[10px] sm:text-xs md:text-sm" />
-                    <span className="truncate">{formatDate(game.startedAt)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
       {/* Phân trang */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-1 sm:gap-2 pt-2 sm:pt-4">
+        <div className="flex items-center justify-center gap-1 sm:gap-2 pb-2">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={loading || currentPage === 1}
@@ -353,6 +253,106 @@ const GameHistory = ({ userId = null, limit = 5 }) => {
           </button>
         </div>
       )}
+
+      {/* Danh sách game */}
+      <div className="space-y-2">
+        {games.map((game, index) => {
+          const opponent = getOpponent(game, currentUserId);
+          const playerMark = getPlayerMark(game, currentUserId);
+          const resultText = getResultText(game, currentUserId);
+          const resultColor = getResultColor(game, currentUserId);
+          const isWin = resultText === 'Thắng';
+          const isDraw = resultText === 'Hòa';
+          
+          return (
+            <div
+              key={game._id}
+              className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all duration-300 overflow-hidden"
+            >
+              <div className="p-2 sm:p-3">
+                {/* Header: Đối thủ và kết quả */}
+                <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-gray-100">
+                  {/* Thông tin đối thủ */}
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    {opponent ? (
+                      <>
+                        <div className="relative flex-shrink-0">
+                          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center overflow-hidden ring-2 ring-white shadow-sm">
+                            {opponent.avatarUrl ? (
+                              <img
+                                src={opponent.avatarUrl}
+                                alt={opponent.nickname || 'Đối thủ'}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-white font-bold text-sm sm:text-base">
+                                {(opponent.nickname || 'Đ')?.[0]?.toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                          {isWin && (
+                            <div className="absolute -top-0.5 -right-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-yellow-400 rounded-full flex items-center justify-center">
+                              <FaTrophy className="text-yellow-800 text-[8px] sm:text-[9px]" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                            {opponent.nickname || 'Đối thủ'}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-gray-500 text-xs sm:text-sm">Không xác định đối thủ</div>
+                    )}
+                  </div>
+                  
+                  {/* Badge kết quả */}
+                  <div className="flex-shrink-0">
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold shadow-sm ${
+                      isWin 
+                        ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' 
+                        : isDraw
+                        ? 'bg-gradient-to-r from-gray-400 to-gray-500 text-white'
+                        : 'bg-gradient-to-r from-red-500 to-rose-600 text-white'
+                    }`}>
+                      {isWin && <FaTrophy className="text-[9px] sm:text-[10px]" />}
+                      <span className="whitespace-nowrap">{resultText}</span>
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Thông tin chi tiết - responsive wrap */}
+                <div className="flex items-center flex-wrap gap-2 sm:gap-3 pt-2">
+                  {playerMark && (
+                    <div className={`
+                      w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center
+                      font-bold text-xs sm:text-sm shadow-sm transition-all flex-shrink-0
+                      ${playerMark === 'X' 
+                        ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white ring-1 ring-blue-200' 
+                        : 'bg-gradient-to-br from-red-500 to-red-600 text-white ring-1 ring-red-200'}
+                    `}>
+                      {playerMark}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-600">
+                    <FaChessBoard className="text-amber-500 flex-shrink-0 text-xs" />
+                    <span className="whitespace-nowrap">{game.boardSize}×{game.boardSize}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-600">
+                    <FaChess className="text-purple-500 flex-shrink-0 text-xs" />
+                    <span className="whitespace-nowrap">{game.moves?.length || 0} nước đi</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-600 min-w-0">
+                    <FaCalendarAlt className="text-blue-500 flex-shrink-0 text-xs" />
+                    <span className="truncate">{formatDate(game.startedAt)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

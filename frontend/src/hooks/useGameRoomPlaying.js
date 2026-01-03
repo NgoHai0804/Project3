@@ -1,4 +1,4 @@
-// Hook xử lý logic khi đang chơi
+// useGameRoomPlaying
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';

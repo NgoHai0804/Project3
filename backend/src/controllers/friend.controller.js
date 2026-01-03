@@ -1,4 +1,4 @@
-// friend.controller.js - xử lý request quan hệ bạn bè
+// friend.controller.js
 
 
 const friendService = require("../services/friend.service");

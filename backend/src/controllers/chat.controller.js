@@ -1,5 +1,5 @@
 // chat.controller.js
-// Controller xử lý các request liên quan đến tin nhắn (trong phòng và chat riêng tư)
+// Xử lý request chat
 const response = require("../utils/response");
 const chatService = require("../services/chat.service");
 const UserService = require("../services/user.service");

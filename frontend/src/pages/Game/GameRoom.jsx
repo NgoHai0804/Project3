@@ -225,7 +225,7 @@ const GameRoom = () => {
 
   if (isJoining && !currentRoom && !roomInfo && !showPasswordModal) {
     return (
-      <div className="min-h-screen bg-gray-100 p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 p-4 flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-600 text-lg">Đang tải thông tin phòng...</p>
         </div>
@@ -234,7 +234,7 @@ const GameRoom = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 p-4">
       <div className="max-w-7xl mx-auto">
         <GameRoomModals
           showPasswordModal={showPasswordModal}

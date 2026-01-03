@@ -39,7 +39,7 @@ const DIRECTIONS = [
   [1, -1] // chéo phụ
 ];
 
-// ================== UTILS ==================
+// Utils
 function expandScores(scores) {
   const out = {};
   for (const k of Object.keys(scores)) {

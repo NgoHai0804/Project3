@@ -170,7 +170,7 @@ const PrivateChat = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100">
       {/* Header */}
       <div className="bg-white shadow p-4">
         <div className="flex items-center justify-between">

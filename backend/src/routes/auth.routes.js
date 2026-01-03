@@ -1,6 +1,5 @@
 // auth.routes.js
-// Định nghĩa các route liên quan đến xác thực người dùng
-// Bao gồm: đăng ký, đăng nhập, quên mật khẩu
+// Routes cho xác thực
 
 
 

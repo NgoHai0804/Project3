@@ -63,10 +63,7 @@ const GameBoard = ({ onCellClick, disabled = false }) => {
       }
     };
     
-    // Lắng nghe sự kiện storage (cho các tab khác)
     window.addEventListener('storage', handleStorageChange);
-    
-    // Lắng nghe custom event (cho cùng tab)
     window.addEventListener('boardThemeChanged', handleThemeChange);
 
     return () => {

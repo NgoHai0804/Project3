@@ -1,4 +1,4 @@
-// Hook xử lý logic trước khi chơi (lobby)
+// useGameRoomLobby
 
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';

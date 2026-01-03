@@ -1,4 +1,4 @@
-// error.middleware.js - xử lý lỗi
+// error.middleware.js
 const logger = require("../utils/logger");
 
 module.exports = (err, req, res, next) => {

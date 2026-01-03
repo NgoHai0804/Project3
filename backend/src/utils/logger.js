@@ -1,8 +1,4 @@
 // logger.js
-// Utility xử lý log hệ thống sử dụng Winston
-// 
-// Chức năng:
-// - Log thông tin, cảnh báo, lỗi ra console và file
 // - Quản lý log theo level (info, warn, error)
 // - Giúp debug và theo dõi trạng thái server
 

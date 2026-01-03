@@ -1,5 +1,5 @@
 // p2bGame.service.js
-// Service xử lý logic game P2B (Player vs Bot) - tách biệt hoàn toàn với P2P
+// Logic game Player vs Bot
 
 const RoomService = require("./room.service");
 const BotService = require("./bot.service");
@@ -50,7 +50,7 @@ function calculateBotMoveForP2B(room, gameState) {
     ? { x: gameState.history[gameState.history.length - 1].x, y: gameState.history[gameState.history.length - 1].y }
     : null;
 
-  // Tạo bản sao của board để tính toán
+  // Copy board
   const boardCopy = gameState.board.map(row => [...row]);
 
   // Tính toán nước đi tốt nhất cho bot sử dụng hàm calculateBotMove mới

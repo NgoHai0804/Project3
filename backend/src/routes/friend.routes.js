@@ -1,6 +1,5 @@
 // friend.routes.js
-// Định nghĩa các route liên quan đến quản lý quan hệ bạn bè
-// Bao gồm: lấy danh sách bạn bè, gửi/chấp nhận/hủy lời mời, tìm kiếm, xóa bạn
+// Routes cho bạn bè
 const express = require('express');
 const router = express.Router();
 const FriendController = require('../controllers/friend.controller');

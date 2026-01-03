@@ -1,4 +1,4 @@
-// user.service.js - xử lý logic quản lý người dùng
+// user.service.js
 
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");

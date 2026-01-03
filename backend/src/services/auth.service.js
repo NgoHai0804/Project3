@@ -1,4 +1,4 @@
-// auth.service.js - xử lý logic xác thực người dùng
+// auth.service.js
 
 const bcrypt = require("bcryptjs");
 const User = require("../models/user.model");

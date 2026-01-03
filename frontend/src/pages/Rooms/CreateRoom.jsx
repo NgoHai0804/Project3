@@ -122,7 +122,7 @@ const CreateRoom = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-3 sm:p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 p-3 sm:p-4">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">Tạo phòng mới</h1>

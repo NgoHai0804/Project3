@@ -1,4 +1,4 @@
-// useGameRoomEnd.js - Hook xử lý logic khi game kết thúc
+// useGameRoomEnd.js
 
 import { useRef, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';

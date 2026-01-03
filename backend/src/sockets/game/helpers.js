@@ -1,5 +1,5 @@
 // helpers.js
-// Helper functions cho game socket
+// Helper functions game socket
 
 const UserService = require("../../services/user.service");
 

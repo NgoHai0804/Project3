@@ -1,5 +1,5 @@
 // bot.controller.js
-// Controller xử lý request liên quan đến AI Bot (tính nước đi cho bot)
+// Xử lý request bot
 const response = require("../utils/response");
 const botMoveService = require("../services/botMove.service");
 const logger = require("../utils/logger");

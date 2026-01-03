@@ -1,5 +1,5 @@
 // helpers.js
-// Helper functions cho room socket
+// Helper functions room socket
 
 /** Helper: Format thời gian hiện tại để log */
 function now() { 

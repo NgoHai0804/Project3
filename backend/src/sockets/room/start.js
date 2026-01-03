@@ -71,7 +71,7 @@ async function handleStartGame(io, socket, data) {
     // Khởi tạo game state (async vì cần lưu playerMarks vào DB)
     const gameState = await initGameForRoom(roomIdStr, roomAfter.players);
 
-    // Khởi tạo ping tracking cho tất cả players trong phòng
+    // Init ping tracking
     if (!roomPlayerPings.has(roomIdStr)) {
       roomPlayerPings.set(roomIdStr, new Map());
     }

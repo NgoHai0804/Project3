@@ -1,5 +1,5 @@
 // index.js
-// Main room socket handler - tổng hợp tất cả các handlers
+// Room socket handlers
 
 const RoomService = require("../../services/room.service");
 const UserService = require("../../services/user.service");

@@ -1,2 +1,2 @@
-// validate.middleware.js - validate dữ liệu đầu vào
+// validate.middleware.js
 

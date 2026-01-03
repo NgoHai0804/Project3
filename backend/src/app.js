@@ -32,9 +32,9 @@ if (process.env.NODE_ENV === "production") {
   // Phục vụ file tĩnh
   app.use(express.static(frontendPath));
   
-  // Dự phòng: phục vụ index.html cho tất cả routes không phải API
+  // Fallback: serve index.html
   app.get("*", (req, res) => {
-    // Không phục vụ index.html cho API routes
+    // Skip API routes
     if (req.path.startsWith("/api")) {
       return res.status(404).json({ error: "API endpoint not found" });
     }

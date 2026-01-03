@@ -1,6 +1,5 @@
 // index.js
-// File này tập hợp tất cả các route lại thành một router chính
-// Mỗi route được import và gắn vào một path cụ thể
+// Tập hợp tất cả các route
 
 const express = require("express");
 const router = express.Router();

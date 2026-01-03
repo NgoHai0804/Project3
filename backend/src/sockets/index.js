@@ -11,14 +11,14 @@ function initSocket(server) {
     cors: { origin: "*", methods: ["GET", "POST"] },
   });
 
-  // Set io instance cho friend.service để có thể emit notifications
+  // Set io instance cho friend service
   const friendService = require("../services/friend.service");
   friendService.setSocketInstance(io);
 
-  // Map để track các socket connections của mỗi user (userId -> [socketIds])
+  // Map user sockets
   const userSockets = new Map();
 
-  // Middleware xác thực JWT - kiểm tra token trước khi cho phép kết nối
+  // Auth middleware
   io.use((socket, next) => {
     console.log("Đang kiểm tra token cho socket:", socket.id);
     console.log("Handshake auth:", socket.handshake.auth);
@@ -128,7 +128,7 @@ function initSocket(server) {
     });
 
     // ---------------------------
-    // Đăng ký các socket handler cho từng module
+    // Đăng ký socket handlers
     // ---------------------------
     gameSocket(io, socket);    // Xử lý logic game
     chatSocket(io, socket);    // Xử lý tin nhắn chat

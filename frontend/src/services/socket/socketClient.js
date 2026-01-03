@@ -203,7 +203,6 @@ class SocketClient {
         }
     }
 
-    // Đăng ký listener cho event
     on(event, callback) {
         if (this.socket) {
             // Tránh trùng lặp listener

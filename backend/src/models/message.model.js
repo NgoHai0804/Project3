@@ -12,7 +12,7 @@ const MessageSchema = new Schema({
 
   createdAt: { type: Date, default: Date.now, index: true } // Thời gian gửi tin nhắn
 });
-// Tạo index kết hợp để sắp xếp tin nhắn trong phòng theo thời gian
+// Index để sắp xếp tin nhắn
 MessageSchema.index({ roomId: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Message', MessageSchema);

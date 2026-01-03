@@ -1,4 +1,4 @@
-// auth.controller.js - xử lý request xác thực người dùng
+// auth.controller.js
 
 const authService = require("../services/auth.service");
 const response = require("../utils/response");

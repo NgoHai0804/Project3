@@ -66,16 +66,7 @@ const NotificationBell = () => {
   };
 
   const getNotificationIcon = (type) => {
-    switch (type) {
-      case 'message':
-        return '💬';
-      case 'friend_request':
-        return '👤';
-      case 'room_invite':
-        return '🎮';
-      default:
-        return '🔔';
-    }
+    return '';
   };
 
   return (
@@ -134,7 +125,6 @@ const NotificationBell = () => {
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="text-2xl">{getNotificationIcon(notification.type)}</div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">

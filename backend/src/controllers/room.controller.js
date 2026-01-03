@@ -1,4 +1,4 @@
-// room.controller.js - xử lý request phòng chơi
+// room.controller.js
 const RoomService = require("../services/room.service");
 const response = require("../utils/response");
 const logger = require("../utils/logger");

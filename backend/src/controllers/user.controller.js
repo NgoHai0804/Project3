@@ -1,4 +1,4 @@
-// user.controller.js - xử lý request thông tin người dùng
+// user.controller.js
 
 const response = require("../utils/response");
 const userService = require("../services/user.service");

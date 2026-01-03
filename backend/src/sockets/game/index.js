@@ -1,5 +1,5 @@
 // index.js
-// Main game socket handler - tổng hợp tất cả các handlers
+// Game socket handlers
 
 const { getGameState, initGameForRoom } = require("./state");
 const { socketToRoom } = require("../room/join");
@@ -61,10 +61,7 @@ async function handleDisconnect(io, socket) {
   }
 }
 
-/** ----------------- EXPORT MODULE ----------------- */
 function gameSocket(io, socket) {
-  // Không cần game:init event nữa vì socketToRoom được quản lý trực tiếp bởi room socket handlers
-  // socketToRoom được cập nhật khi join_room được gọi (trong room/join.js)
 
   socket.on("make_move", (data) => handleMakeMove(io, socket, data));
   socket.on("undo_move", (data) => handleUndoMove(io, socket, data));
@@ -76,7 +73,6 @@ function gameSocket(io, socket) {
   socket.on("surrender_game", (data) => handleSurrender(io, socket, data));
 }
 
-// Export main function và helper functions
 module.exports = gameSocket;
 module.exports.getGameState = getGameState;
 module.exports.initGameForRoom = initGameForRoom;

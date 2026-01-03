@@ -1,5 +1,5 @@
 // models/index.js
-// File tập hợp và export tất cả các model để dễ dàng import
+// Export tất cả các model
 
 const User = require('./user.model');
 const Friend = require('./friend.model');

@@ -1,4 +1,4 @@
-// friend.service.js - xử lý logic bạn bè và lời mời kết bạn
+// friend.service.js
 const Friend = require("../models/friend.model");
 const User = require("../models/user.model");
 const logger = require("../utils/logger");

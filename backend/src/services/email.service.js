@@ -1,4 +1,4 @@
-// email.service.js - gửi email sử dụng Resend API
+// email.service.js
 const { Resend } = require('resend');
 const logger = require('../utils/logger');
 

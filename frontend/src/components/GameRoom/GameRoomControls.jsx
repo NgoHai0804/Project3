@@ -97,12 +97,14 @@ const GameRoomControls = ({
       )}
       {isPlaying && !isGameOver && (
         <>
-          <button
-            onClick={handleRequestDraw}
-            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm sm:text-base"
-          >
-            Xin hòa
-          </button>
+          {currentRoom?.mode !== 'P2B' && (
+            <button
+              onClick={handleRequestDraw}
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm sm:text-base"
+            >
+              Xin hòa
+            </button>
+          )}
           <button
             onClick={handleSurrender}
             className="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"

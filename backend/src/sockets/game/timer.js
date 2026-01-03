@@ -18,7 +18,7 @@ function startTurnTimer(io, roomIdStr, turnTimeLimit) {
     clearTimeout(existingTimer);
   }
 
-  // Tạo timer mới để đếm ngược
+  // Tạo timer mới
   const timer = setTimeout(async () => {
     try {
       const room = await RoomService.getRoomById(roomIdStr);

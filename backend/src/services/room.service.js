@@ -1,4 +1,4 @@
-// room.service.js - xử lý logic phòng chơi Caro
+// room.service.js
 const Room = require("../models/room.model");
 const User = require("../models/user.model");
 const bcrypt = require("bcryptjs");

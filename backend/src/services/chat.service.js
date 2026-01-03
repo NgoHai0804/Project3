@@ -1,4 +1,4 @@
-// chat.service.js - xử lý logic tin nhắn
+// chat.service.js
 const Message = require("../models/message.model");
 const logger = require("../utils/logger");
 

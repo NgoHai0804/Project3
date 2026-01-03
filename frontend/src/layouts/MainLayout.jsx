@@ -12,20 +12,15 @@ const MainLayout = () => {
   const location = useLocation();
   const [hasCheckedRoom, setHasCheckedRoom] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const checkingRoomRef = useRef(false); // Flag để tránh gọi checkUserRoom nhiều lần cùng lúc
-  useSocket(); // Khởi tạo kết nối socket
-  useNotifications(); // Khởi tạo listener thông báo
-
-  // Kiểm tra user có đang trong phòng nào không khi đăng nhập
-  // Bỏ qua check nếu đang ở lobby vì Lobby sẽ tự xử lý song song với load list
+  const checkingRoomRef = useRef(false);
+  useSocket();
+  useNotifications();
   useEffect(() => {
     const checkUserRoom = async () => {
-      // Bỏ qua nếu đang ở lobby - Lobby sẽ tự xử lý check-user-room song song với load list
       if (location.pathname === '/lobby' || location.pathname === '/') {
         return;
       }
       
-      // Chỉ kiểm tra nếu đã đăng nhập và chưa kiểm tra và không đang check
       if (!isAuthenticated || hasCheckedRoom || location.pathname.startsWith('/game/') || checkingRoomRef.current) {
         return;
       }
@@ -35,7 +30,6 @@ const MainLayout = () => {
         const result = await roomApi.checkUserRoom();
         
         if (result?.inRoom && result?.room?._id) {
-          // Tự động chuyển đến phòng nếu user đang ở trong phòng
           navigate(`/game/${result.room._id}`, { replace: true });
         }
       } catch (error) {
@@ -49,12 +43,10 @@ const MainLayout = () => {
     checkUserRoom();
   }, [isAuthenticated, hasCheckedRoom, location.pathname, navigate]);
 
-  // Đóng sidebar khi chuyển trang trên mobile
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
 
-  // Kiểm tra route đang active
   const isActive = (path) => {
     if (path === '/lobby') {
       return location.pathname === '/' || location.pathname === '/lobby';
@@ -62,7 +54,6 @@ const MainLayout = () => {
     return location.pathname.startsWith(path);
   };
 
-  // Lấy class cho menu item
   const getMenuItemClasses = (path) => {
     const baseClasses = "block px-4 py-3 text-gray-800 rounded-lg transition-all duration-200 font-medium flex items-center gap-3";
     const activeClasses = isActive(path)
@@ -71,17 +62,12 @@ const MainLayout = () => {
     return `${baseClasses} ${activeClasses}`;
   };
 
-  // Hàm điều hướng đến lobby (để Lobby tự xử lý check-user-room song song với load list)
+  // Điều hướng đến lobby
   const handleNavigateToLobby = (e) => {
     e?.preventDefault();
     
-    // Navigate ngay đến lobby, để Lobby tự xử lý check-user-room song song với load list
-    // Điều này giúp tránh lag khi bấm logo hoặc refresh
     if (location.pathname === '/lobby' || location.pathname === '/') {
-      // Đã ở lobby rồi, trigger refresh bằng cách navigate lại
-      // Lobby sẽ tự động gọi loadRooms() song song với check-user-room
       navigate('/lobby', { replace: true });
-      // Force re-render bằng cách thay đổi key hoặc trigger event
       window.dispatchEvent(new Event('lobby-refresh'));
     } else {
       navigate('/lobby');
@@ -89,7 +75,7 @@ const MainLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100">
       {/* Navbar */}
       <nav className="bg-gradient-to-r from-white via-blue-50 to-white shadow-lg border-b border-blue-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

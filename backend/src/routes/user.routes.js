@@ -1,6 +1,5 @@
 // user.routes.js
-// Định nghĩa các route liên quan đến quản lý thông tin người dùng
-// Bao gồm: xem/cập nhật profile, xem leaderboard, đổi mật khẩu
+// Routes cho user
 const express = require("express");
 const router = express.Router();
 const verifyToken = require("../middlewares/auth.middleware");

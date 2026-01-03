@@ -159,7 +159,7 @@ async function handleMakeMove(io, socket, data) {
         winningMove: { x, y }
       };
 
-      // Tìm người thua TRƯỚC KHI gọi endGame (vì room có thể thay đổi sau đó)
+      // Tìm người thua trước khi endGame
       const loser = room.players.find(p => p.userId.toString() !== userId.toString());
       const loserNickname = loser?.nickname || loser?.username || "Đối thủ";
       const loserUserId = loser?.userId ? loser.userId.toString() : null;

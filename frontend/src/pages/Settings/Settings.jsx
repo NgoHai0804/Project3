@@ -40,7 +40,7 @@ const Settings = () => {
   const handleRadioChange = (key, value) => {
     setSettings(prev => ({ ...prev, [key]: value }));
     localStorage.setItem(key, value);
-    // Dispatch custom event để các component khác có thể lắng nghe
+    // Dispatch event để các component khác lắng nghe
     window.dispatchEvent(new CustomEvent('boardThemeChanged', { detail: { theme: value } }));
     toast.success(`Đã cập nhật ${getSettingLabel(key)}`);
   };
@@ -66,10 +66,10 @@ const Settings = () => {
               <label className="block text-sm sm:text-base font-medium mb-3 sm:mb-4">Màu sắc bàn cờ</label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 {[
-                  { value: 'default', label: 'Mặc định', color: 'bg-gray-100 border border-gray-300' },
-                  { value: 'wood', label: 'Gỗ', color: 'bg-amber-100 border border-amber-300' },
+                  { value: 'default', label: 'Trắng', color: 'bg-white border border-gray-300' },
+                  { value: 'wood', label: 'Vàng', color: 'bg-amber-100 border border-amber-300' },
                   { value: 'blue', label: 'Xanh dương', color: 'bg-blue-100 border border-blue-300' },
-                  { value: 'dark', label: 'Tối', color: 'bg-gray-700 border border-gray-600' },
+                  { value: 'dark', label: 'Đen', color: 'bg-gray-700 border border-gray-600' },
                 ].map((option) => (
                   <label
                     key={option.value}

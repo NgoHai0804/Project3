@@ -1,4 +1,4 @@
-// utils/validation.js - kiểm tra và xử lý dữ liệu đầu vào
+// utils/validation.js
 const bcrypt = require("bcrypt");
 
 // Kiểm tra dữ liệu có hợp lệ không

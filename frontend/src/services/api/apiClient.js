@@ -66,7 +66,7 @@ apiClient.interceptors.request.use(
 
 // Xử lý logout khi không xác thực được
 const handleUnauthorized = () => {
-  // Dispatch logout action để cập nhật Redux store
+  // Dispatch logout
   store.dispatch(logout());
   
   // Disconnect socket nếu có

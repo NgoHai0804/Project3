@@ -51,7 +51,7 @@ const GameRoomHeader = ({
               <div className="flex flex-wrap items-center gap-2 sm:gap-4 sm:gap-6">
                 {/* Thời gian đã chơi */}
                 <div className="flex items-center gap-1 sm:gap-2 bg-blue-50 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg border-2 border-blue-200">
-                  <span className="text-xs sm:text-sm font-medium text-blue-700">⏱️ Thời gian:</span>
+                  <span className="text-xs sm:text-sm font-medium text-blue-700">Thời gian:</span>
                   <span className="text-base sm:text-xl font-bold text-blue-600">{formatGameDuration()}</span>
                 </div>
                 {/* Thời gian còn lại */}

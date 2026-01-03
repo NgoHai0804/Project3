@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const connectDB = async (retries = 5, delay = 2000) => {
   // Kiểm tra MONGO_URI có được set chưa
   if (!process.env.MONGO_URI) {
-    console.error("❌ MONGO_URI chưa được định nghĩa trong biến môi trường");
+    console.error("MONGO_URI chưa được định nghĩa trong biến môi trường");
     process.exit(1);
   }
 

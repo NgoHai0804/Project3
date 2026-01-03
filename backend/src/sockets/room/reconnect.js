@@ -75,7 +75,7 @@ async function handleCheckAndReconnect(io, socket) {
             currentPlayerIndex: game.currentPlayerIndex,
           };
           
-          // Khởi tạo lại ping tracking cho player này
+          // Init ping tracking
           if (!roomPlayerPings.has(roomIdStr)) {
             roomPlayerPings.set(roomIdStr, new Map());
           }
@@ -132,7 +132,7 @@ async function handleCheckAndReconnect(io, socket) {
             currentPlayerIndex: game.currentPlayerIndex,
           };
           
-          // Khởi tạo lại ping tracking cho player này
+          // Init ping tracking
           if (!roomPlayerPings.has(room._id.toString())) {
             roomPlayerPings.set(room._id.toString(), new Map());
           }

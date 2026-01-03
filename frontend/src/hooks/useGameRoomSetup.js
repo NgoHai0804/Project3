@@ -1,4 +1,4 @@
-// Hook xử lý việc setup và join vào phòng
+// useGameRoomSetup
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';

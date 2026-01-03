@@ -1,4 +1,4 @@
-// gameCaro.service.js - xử lý logic lịch sử chơi Caro
+// gameCaro.service.js
 
 const GameCaro = require("../models/gameCaro.model");
 const Room = require("../models/room.model");
