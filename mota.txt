@@ -84,3 +84,148 @@ Tính năng chính:
 	Mobile app (React Native / Flutter) kết nối chung server với web.
 	Thêm bảng xếp hạng toàn server và friend leaderboard.
 	Tối ưu realtime server cho số lượng phòng & người chơi lớn.
+
+CHƯƠNG II. PHÂN TÍCH YÊU CẦU CHỨC NĂNG
+
+2.1. Các chức năng chính
+
+2.1.1. Nhóm chức năng Quản lý Tài khoản và Xác thực
+• Đăng ký tài khoản:
+  - Cho phép người dùng mới tạo tài khoản trên hệ thống với các trường bắt buộc: Username (duy nhất), Email (duy nhất, đúng định dạng), Nickname, Password.
+  - Hệ thống kiểm tra trùng lặp Username và Email; nếu đã tồn tại, trả về thông báo lỗi rõ ràng.
+  - Mật khẩu được mã hóa (hash) trước khi lưu vào cơ sở dữ liệu, không lưu mật khẩu dạng plain text.
+  - Có thể gửi email xác minh (tùy mức độ triển khai) để kích hoạt tài khoản, tránh spam/tài khoản ảo.
+
+• Xác thực đăng nhập:
+  - Người dùng đăng nhập bằng Username hoặc Email cùng Password.
+  - Hệ thống kiểm tra thông tin với dữ liệu trong DB, nếu hợp lệ sẽ cấp token truy cập (Access Token) và tùy chọn Refresh Token.
+  - Sau khi đăng nhập thành công, frontend lưu token an toàn (localStorage/HTTP-only cookie) và cập nhật trạng thái đăng nhập trên giao diện.
+  - Tất cả các API bảo vệ (bảo mật) đều yêu cầu kèm token để xác thực, bao gồm: truy cập phòng, chat, bạn bè, lịch sử trận đấu, cấu hình cá nhân.
+
+• Khôi phục mật khẩu:
+  - Khi người dùng quên mật khẩu, có thể yêu cầu “Quên mật khẩu” bằng Email đã đăng ký.
+  - Hệ thống gửi liên kết đặt lại mật khẩu (reset password link) hoặc mã OTP về Email.
+  - Liên kết/mã OTP có thời hạn (ví dụ 10–15 phút) và chỉ sử dụng được một lần.
+  - Sau khi người dùng nhập mật khẩu mới thành công, mật khẩu cũ bị vô hiệu, token cũ cũng có thể bị thu hồi để tăng bảo mật.
+
+2.1.2. Nhóm chức năng Hồ sơ và Thống kê Cá nhân
+• Quản lý hồ sơ:
+  - Người dùng xem và chỉnh sửa thông tin cá nhân cơ bản: Nickname, Avatar, giới thiệu ngắn (bio).
+  - Cho phép đổi mật khẩu (yêu cầu nhập mật khẩu cũ để xác nhận).
+  - Cho phép đăng xuất (logout) khỏi hệ thống, đồng thời xóa hoặc vô hiệu token đang sử dụng.
+  - Avatar có thể chọn từ bộ sưu tập có sẵn (không bắt buộc upload file cá nhân để đơn giản hóa).
+
+• Hệ thống thống kê:
+  - Sau mỗi trận đấu, hệ thống tự động cập nhật các chỉ số: tổng số ván đã chơi, số trận thắng/thua/hòa.
+  - Tính toán tỷ lệ thắng/thua/hòa theo phần trăm và hiển thị trên trang hồ sơ.
+  - Mỗi trận thắng/thua/hòa sẽ cộng/trừ một lượng điểm xếp hạng nhất định (ranking point).
+  - Điểm tích lũy xếp hạng dùng để sắp xếp người chơi trên Bảng xếp hạng toàn hệ thống.
+
+• Lịch sử trận đấu:
+  - Lưu trữ danh sách các trận đấu gần nhất của từng người chơi (ví dụ 20–50 trận gần nhất).
+  - Mỗi bản ghi lịch sử gồm: thời gian bắt đầu, thời gian kết thúc, đối thủ, kết quả (thắng/thua/hòa), loại trận (PvP/PvBot), chế độ phòng (thời gian, người đi trước).
+  - Cho phép người dùng xem chi tiết một trận đấu, gồm: ai là người chơi X/O, số lượt đi, kết quả cuối cùng.
+  - Có thể hỗ trợ xem lại (replay) nước đi từng bước trong phiên bản mở rộng.
+
+2.1.3. Nhóm chức năng Mạng xã hội và Tương tác bạn bè
+• Tìm kiếm người chơi:
+  - Cho phép tìm kiếm người chơi khác thông qua Nickname hoặc Username (có thể autocomplete).
+  - Kết quả trả về gồm: Avatar, Nickname, trạng thái hiện tại (Online/Offline/In-game), và một số chỉ số cơ bản (cấp bậc, điểm rank).
+
+• Quản lý danh sách bạn bè:
+  - Người dùng có thể gửi lời mời kết bạn đến người chơi khác.
+  - Người nhận có thể chấp nhận hoặc từ chối lời mời; kết quả sẽ được cập nhật real-time nếu cả hai đang online.
+  - Hỗ trợ hủy lời mời đã gửi hoặc xóa bạn khỏi danh sách bạn bè hiện tại.
+  - Hệ thống lưu trạng thái mối quan hệ: chưa là bạn, đã gửi lời mời, đang chờ, đã là bạn.
+
+• Trạng thái trực tuyến:
+  - Theo dõi và cập nhật trạng thái online/offline của mỗi tài khoản thông qua Socket.IO.
+  - Phân biệt rõ 3 trạng thái chính: Online, Offline, In-game (đang trong trận).
+  - Khi người dùng vào/thoát game hoặc kết thúc trận, trạng thái được cập nhật ngay trên danh sách bạn bè của những người liên quan.
+
+• Lời mời thi đấu:
+  - Cho phép người dùng gửi lời mời chơi trận (invite vào phòng) đến một người bạn đang Online.
+  - Người nhận có thể chấp nhận hoặc từ chối lời mời; nếu chấp nhận, hệ thống đưa họ vào cùng một phòng (hoặc tạo phòng mới nếu cần).
+  - Nếu người gửi là chủ phòng, có thể chỉ định phòng hiện tại là nơi diễn ra trận đấu và mời bạn bè tham gia.
+
+2.1.4. Nhóm chức năng Giao tiếp và Thông báo
+• Chat riêng tư:
+  - Hệ thống tin nhắn 1-1 giữa hai người chơi, tách biệt với chat trong phòng.
+  - Tin nhắn được gửi/nhận qua Socket.IO để hiển thị tức thời, đồng thời lưu vào cơ sở dữ liệu để xem lại lịch sử.
+  - Hỗ trợ các tiện ích cơ bản: gửi văn bản, emoji, đánh dấu tin nhắn đã đọc/chưa đọc.
+
+• Chat trong phòng:
+  - Mỗi phòng chơi có một kênh chat riêng cho tất cả người trong phòng (bao gồm khán giả nếu có).
+  - Tin nhắn hiển thị ngay trên giao diện phòng chơi, thường đặt cạnh hoặc dưới bàn cờ.
+  - Hệ thống có thể lọc/bỏ qua những nội dung vi phạm (tùy mức độ triển khai lọc từ khóa).
+
+• Trung tâm thông báo:
+  - Tích hợp biểu tượng chuông thông báo trên thanh điều hướng (Navbar).
+  - Thông báo real-time các sự kiện: lời mời kết bạn mới, lời mời vào phòng, tin nhắn riêng chưa đọc, cập nhật trạng thái bạn bè.
+  - Người dùng có thể nhấp vào từng thông báo để chuyển đến màn hình tương ứng (ví dụ: màn hình phòng, màn hình chat, màn hình yêu cầu kết bạn).
+  - Cho phép đánh dấu tất cả thông báo đã đọc, xóa thông báo cũ, hoặc giới hạn số thông báo hiển thị gần nhất.
+
+2.1.5. Nhóm chức năng Bảng xếp hạng và Thi đấu
+• Bảng xếp hạng:
+  - Hiển thị danh sách những người chơi có điểm tích lũy cao nhất trong hệ thống.
+  - Có thể chia theo nhiều loại bảng: toàn server, theo tuần/tháng, theo danh sách bạn bè.
+  - Hỗ trợ phân trang hoặc cuộn vô hạn nếu số lượng người chơi lớn.
+
+• Chi tiết thứ hạng:
+  - Mỗi dòng trên bảng xếp hạng gồm: số thứ tự hạng, avatar, nickname/username, tổng điểm, và một số chỉ số cơ bản (số trận thắng, tỷ lệ thắng).
+  - Khi nhấp vào một người chơi trên bảng xếp hạng, hệ thống có thể mở trang hồ sơ chi tiết của người đó.
+  - Điểm xếp hạng được cập nhật sau mỗi trận, có thể áp dụng hệ số K (Elo) hoặc một công thức đơn giản (thắng +x, thua -y, hòa +z).
+
+2.1.6. Nhóm chức năng Cài đặt và Cấu hình
+• Cài đặt và tùy biến giao diện:
+  - Cho phép người chơi lựa chọn theme bàn cờ: mặc định, gỗ, xanh dương, tối… để cá nhân hóa trải nghiệm.
+  - Lưu lại lựa chọn theme của người dùng để tự động áp dụng cho những lần đăng nhập sau.
+  - Có thể thêm tùy chọn bật/tắt âm thanh, nhạc nền, hiệu ứng animation.
+
+• Cài đặt phòng chơi:
+  - Chủ phòng có quyền cấu hình các tham số: thời gian mỗi lượt đi (ví dụ 10/20/30 giây), người đi trước (X hay O), có mật khẩu phòng hay không.
+  - Các thiết lập phòng được áp dụng cho toàn bộ người chơi khi trận đấu bắt đầu.
+  - Khi chủ phòng thay đổi cấu hình, hệ thống thông báo lại cho các thành viên trong phòng và cập nhật giao diện tương ứng.
+
+2.1.7. Nhóm chức năng Tương tác trong Trận đấu
+• Đồng bộ nước đi thời gian thực:
+  - Mỗi nước đi của người chơi được gửi qua Socket.IO tới server và broadcast đến đối thủ/người còn lại trong phòng.
+  - Bàn cờ của cả hai phía được cập nhật ngay lập tức, đảm bảo không có độ trễ đáng kể (Realtime).
+  - Hệ thống ghi nhận thứ tự nước đi, phục vụ cho việc hiển thị lịch sử và phân tích trận đấu.
+
+• Quản lý lượt đi:
+  - Hệ thống xác định rõ ai là người đi trước (X hoặc O) dựa trên cấu hình phòng.
+  - Chỉ người đến lượt mới được phép thực hiện nước đi; nếu người không đến lượt cố gắng đánh, yêu cầu sẽ bị từ chối.
+  - Sau mỗi nước đi hợp lệ, lượt sẽ được chuyển sang người chơi còn lại, đồng thời đồng hồ đếm ngược được reset cho người đó.
+
+• Đồng hồ đếm ngược:
+  - Mỗi lượt đi có một khoảng thời gian giới hạn (ví dụ 20 giây).
+  - Đồng hồ đếm ngược hiển thị trực quan bên cạnh avatar hoặc trên bàn cờ.
+  - Nếu hết thời gian mà người chơi chưa đánh, hệ thống xử lý theo quy định phòng: xử thua do hết giờ, hoặc tự động bỏ lượt (tùy luật chơi đã chọn).
+
+• Nhận diện thắng thua:
+  - Sau mỗi nước đi, hệ thống tự động kiểm tra điều kiện thắng: 5 quân liên tiếp theo hàng ngang, dọc hoặc chéo.
+  - Nếu phát hiện có người thắng, trận đấu lập tức dừng, hiển thị thông báo kết quả và cập nhật điểm xếp hạng, thống kê cho cả hai người.
+  - Nếu bàn cờ đầy mà không ai thắng, hệ thống ghi nhận kết quả hòa.
+  - Kết quả cuối cùng của trận đấu được lưu vào cơ sở dữ liệu để sử dụng cho lịch sử trận đấu và bảng xếp hạng.
+
+2.1.8. Nhóm chức năng Chơi với Bot
+• Mục tiêu:
+  - Cho phép người dùng luyện tập kỹ năng mà không cần đối thủ là người thật.
+  - Phù hợp cho người chơi mới làm quen luật, cũng như người chơi muốn thử nghiệm chiến thuật.
+
+• Cấp độ khó đa dạng:
+  - Dễ (Easy):
+    + Bot ưu tiên những nước đi đơn giản, có thể cố tình bỏ qua một số nước phòng thủ/tấn công tối ưu.
+    + Mục tiêu là giúp người chơi dễ thắng, tạo cảm giác quen thuộc và không gây áp lực.
+  - Trung bình (Medium):
+    + Sử dụng thuật toán Minimax với độ sâu tìm kiếm thấp (ví dụ depth = 2).
+    + Bot có khả năng nhìn trước một vài nước, cân bằng giữa tốc độ phản hồi và độ khó.
+  - Khó (Hard):
+    + Sử dụng thuật toán Minimax kết hợp cắt tỉa Alpha-Beta với độ sâu tìm kiếm lớn hơn (ví dụ depth = 3 hoặc cao hơn tùy hiệu năng).
+    + Bot cố gắng chọn nước đi tối ưu nhất, ưu tiên chặn các đường thắng của người chơi và tạo thế thắng cho bản thân.
+
+• Cơ chế trận đấu với Bot:
+  - Người chơi có thể chọn cấp độ Bot trước khi bắt đầu trận.
+  - Luật chơi, giao diện, đồng hồ đếm ngược tương tự như khi chơi với người thật.
+  - Hệ thống vẫn ghi nhận kết quả thắng/thua/hòa khi chơi với Bot và có thể cập nhật thống kê cá nhân (có thể tách riêng khỏi xếp hạng PvP tùy thiết kế).

@@ -56,10 +56,12 @@ const MainLayout = () => {
   };
 
   const getMenuItemClasses = (path) => {
-    const baseClasses = "block px-4 py-3 text-gray-800 rounded-lg transition-all duration-200 font-medium flex items-center gap-3";
+    const baseClasses =
+      "block px-4 py-3 text-slate-800 rounded-xl transition-all duration-200 font-medium flex items-center gap-3 " +
+      "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60";
     const activeClasses = isActive(path)
-      ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md transform scale-[1.02]"
-      : "hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 hover:text-blue-700 hover:shadow-sm";
+      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/20 transform scale-[1.02]"
+      : "hover:bg-gradient-to-r hover:from-white hover:to-blue-50 hover:text-blue-800 hover:shadow-sm";
     return `${baseClasses} ${activeClasses}`;
   };
 
@@ -78,7 +80,7 @@ const MainLayout = () => {
   return (
     <div className="app-bg">
       {/* Navbar */}
-      <nav className="bg-gradient-to-r from-white via-blue-50 to-white shadow-lg border-b border-blue-200">
+      <nav className="bg-gradient-to-r from-white via-blue-50 to-indigo-50 shadow-lg border-b border-blue-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
@@ -166,7 +168,7 @@ const MainLayout = () => {
       {/* Sidebar and Main Content */}
       <div className="flex">
         {/* Desktop Sidebar - Luôn hiển thị trên PC (sm: 640px+) */}
-        <aside className="sidebar-desktop hidden sm:flex w-64 flex-shrink-0 bg-white shadow-lg border-r border-blue-200 min-h-[calc(100vh-4rem)] flex-col">
+        <aside className="sidebar-desktop hidden sm:flex w-64 flex-shrink-0 bg-gradient-to-b from-white via-blue-50/60 to-indigo-50/60 shadow-lg border-r border-blue-100 min-h-[calc(100vh-4rem)] flex-col">
           <nav className="p-4 space-y-2">
             <button
               onClick={handleNavigateToLobby}
@@ -219,7 +221,7 @@ const MainLayout = () => {
 
         {/* Mobile Sidebar */}
         <aside
-          className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white shadow-2xl border-r border-blue-200 z-50 transform transition-transform duration-300 ease-in-out sm:hidden ${
+          className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-gradient-to-b from-white via-blue-50/60 to-indigo-50/60 shadow-2xl border-r border-blue-100 z-50 transform transition-transform duration-300 ease-in-out sm:hidden ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
