@@ -5,6 +5,7 @@ import { useSocket } from '../hooks/useSocket';
 import { useNotifications } from '../hooks/useNotifications';
 import NotificationBell from '../components/Navbar/NotificationBell';
 import { roomApi } from '../services/api/roomApi';
+import '../styles/appBackground.css';
 
 const MainLayout = () => {
   const { user, isAuthenticated } = useAuth();
@@ -75,7 +76,7 @@ const MainLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100">
+    <div className="app-bg">
       {/* Navbar */}
       <nav className="bg-gradient-to-r from-white via-blue-50 to-white shadow-lg border-b border-blue-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -13,7 +13,6 @@ Dự án web game cờ Caro online với đầy đủ tính năng realtime, hỗ
 - [Socket Events](#socket-events)
 - [Tính năng chi tiết](#tính-năng-chi-tiết)
 - [Deployment](#deployment)
-- [Tác giả](#tác-giả)
 
 ---
 
@@ -868,12 +867,6 @@ npm run build
 - [ ] Spectator mode
 - [ ] Replay system
 - [ ] Advanced AI với machine learning
-
----
-
-## 👨‍💻 Tác giả
-
-Dự án được phát triển bởi nhóm sinh viên.
 
 ---
 

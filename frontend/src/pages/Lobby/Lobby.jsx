@@ -234,7 +234,7 @@ const Lobby = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 p-3 sm:p-4">
+    <div className="min-h-[calc(100vh-4rem)] p-3 sm:p-4">
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-4 sm:mb-6">
           <LobbyHeader onCreateRoom={handleCreateRoom} />
